@@ -1,4 +1,4 @@
-# Android Universal Adapter [![Apache License](https://img.shields.io/badge/license-Apache%20v2-blue.svg) ](https://github.com/lliepmah/AndroidUniversalAdapter/blob/master/README.md)
+# Android Universal Adapter [![Apache License](https://img.shields.io/badge/license-Apache%20v2-blue.svg) ](https://github.com/lliepmah/AndroidUniversalAdapter/blob/master/README.md)[![Coverage Status](https://coveralls.io/repos/github/lliepmah/AndroidUniversalAdapter/badge.svg?branch=master)](https://coveralls.io/github/lliepmah/AndroidUniversalAdapter?branch=master)[![Build Status](https://travis-ci.org/lliepmah/AndroidUniversalAdapter.svg?branch=master)](https://travis-ci.org/lliepmah/AndroidUniversalAdapter)
 
 
 
