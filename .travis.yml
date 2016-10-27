@@ -23,7 +23,7 @@ cache:
 
 env:
   global:
-    - COVERALLS_REPO_TOKEN=0e3a72cb044e48cf981b94a4ce4f0244
+    - COVERALLS_REPO_TOKEN=qqeJnWXRN3vRFgg5qKPiRO5jEqc3DOcSm
 
 #before_script:
 #    - ./gradlew clean checkstyle
