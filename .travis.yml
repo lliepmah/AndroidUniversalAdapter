@@ -21,8 +21,8 @@ cache:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
 
-before_script:
-    - ./gradlew clean checkstyle
+#before_script:
+#    - ./gradlew clean checkstyle
 
 script:
     - ./gradlew testDebugUnitTest jacocoTestReport coveralls
