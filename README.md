@@ -1,4 +1,4 @@
-# Android Universal Adapter
+# Android Universal Adapter [![Apache License](https://img.shields.io/badge/license-Apache%20v2-blue.svg) ](https://github.com/lliepmah/AndroidUniversalAdapter/blob/master/README.md)
 
 
 
