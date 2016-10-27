@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView
+    android:id="@+id/li_post_best_root"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+
+    android:layout_margin="5dp"
+    card_view:cardCornerRadius="5dp"
+    card_view:cardElevation="5dp"
+    card_view:contentPadding="10dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/li_post_best_iv_like"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="5dp"
+            android:layout_alignParentRight="true"
+
+            android:src="@drawable/like"/>
+
+        <TextView
+            android:id="@+id/li_post_best_tv_title"
+            android:layout_alignTop="@+id/li_post_best_iv_like"
+            android:layout_alignBottom="@+id/li_post_best_iv_like"
+            android:gravity="center_vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/li_post_best_iv_like"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
+            tools:text="Title"
+            />
+
+        <TextView
+            android:id="@+id/li_post_best_tv_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/li_post_best_tv_title"
+            android:padding="2dp"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Body1"
+            tools:text="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ip"/>
+
+
+    </RelativeLayout>
+
+
+</android.support.v7.widget.CardView>

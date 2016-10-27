@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView
+    android:id="@+id/li_user_detail_root"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+
+    android:layout_margin="5dp"
+    card_view:cardCornerRadius="5dp"
+    card_view:cardElevation="5dp"
+    card_view:contentPadding="10dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/li_user_detail_iv_avatar"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:layout_margin="10dp"
+            android:src="@drawable/person"/>
+
+        <TextView
+            android:id="@+id/li_user_detail_tv_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_below="@+id/li_user_detail_iv_avatar"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Display1"
+            tools:text="Name"
+            />
+
+        <TextView
+            android:id="@+id/li_user_detail_tv_lastname"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/li_user_detail_tv_name"
+            android:padding="2dp"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Display1"
+            tools:text="Lastname"/>
+        
+        <TextView
+            android:id="@+id/li_user_detail_tv_phone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/li_user_detail_tv_lastname"
+            android:padding="2dp"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
+            tools:text="1-888-888-8888"/>
+
+
+
+    </RelativeLayout>
+
+
+</android.support.v7.widget.CardView>

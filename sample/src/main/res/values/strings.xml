@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Universal Adapter</string>
+
+    <string name="open_post_id">Open post with id=%1$d</string>
+    <string name="like_post_id">Like post with id=%1$d</string>
+    <string name="title">Title:</string>
+    <string name="best">Best</string>
+    <string name="menu">Menu</string>
+    <string name="users">Users</string>
+    <string name="other">Other</string>
+    <string name="posts_category">"Posts category: "</string>
+    <string name="label_add_user">Add User</string>
+</resources>
