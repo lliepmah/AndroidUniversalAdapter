@@ -1,17 +1,31 @@
+language: android
+
 jdk:
   - oraclejdk8
-language: android
+
 android:
   components:
     - tools
     - platform-tools
-    - build-tools-23.0.0
-    - android-22
+    - build-tools-24.0.2
+    - android-24
     - extra-android-m2repository
     - extra-android-support
+
 branches:
   only:
     - master
+
+cache:
+  directories:
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
+
+before_script:
+    - ./gradlew clean checkstyle
+
 script:
-  - gradle -version
-  - gradle jacocoTestReport coveralls
+    - ./gradlew testDebugUnitTest jacocoTestReport coveralls
+
+notifications:
+  email: false

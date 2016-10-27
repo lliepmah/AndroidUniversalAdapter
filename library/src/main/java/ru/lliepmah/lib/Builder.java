@@ -1,6 +1,5 @@
 package ru.lliepmah.lib;
 
-import android.view.View;
 import android.view.ViewGroup;
 
 public abstract class Builder<M> {
@@ -9,5 +8,5 @@ public abstract class Builder<M> {
 
     abstract public int getId();
 
-    abstract public  DefaultViewHolder<M> build(ViewGroup parent);
+    abstract public DefaultViewHolder<M> build(ViewGroup parent);
 }

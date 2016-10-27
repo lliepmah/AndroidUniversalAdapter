@@ -42,10 +42,6 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import javax.tools.JavaFileObject;
 
-import static javax.lang.model.element.Modifier.FINAL;
-import static javax.lang.model.element.Modifier.PUBLIC;
-import static javax.lang.model.element.Modifier.STATIC;
-
 @SuppressLint("NewApi")
 @AutoService(Processor.class)
 public final class HolderBuilderProcessor extends AbstractProcessor {
@@ -119,12 +115,22 @@ public final class HolderBuilderProcessor extends AbstractProcessor {
     }
 
     private void processType(TypeElement type) {
+        if (type == null) {
+            mErrorReporter.abortWithError("TypeElement is null", null);
+            return;
+        }
+
+        String fqClassName = generatedSubclassName(type, 0);
+        String className = TypeElementUtils.simpleNameOf(fqClassName);
+        if (className == null) {
+            mErrorReporter.abortWithError("Class name is null", type);
+        }
+
         HolderBuilder holderBuilderAnnotation = type.getAnnotation(ANNOTATION);
         if (!checkTypeElement(type, holderBuilderAnnotation)) {
             return;
         }
-        String fqClassName = generatedSubclassName(type, 0);
-        String className = TypeElementUtils.simpleNameOf(fqClassName);
+
         String source = generateCode(holderBuilderAnnotation.value(), type, className);
         source = Reformatter.fixup(source);
 
@@ -133,8 +139,8 @@ public final class HolderBuilderProcessor extends AbstractProcessor {
 
     private boolean checkTypeElement(TypeElement type, HolderBuilder holderBuilderAnnotation) {
         if (holderBuilderAnnotation == null) {
-            mErrorReporter.abortWithError("annotation processor for @HolderBuilder was invoked with a" +
-                    "type annotated differently; compiler bug? O_o", type);
+            mErrorReporter.abortWithError("annotation processor for @HolderBuilder was invoked with a"
+                    + "type annotated differently; compiler bug? O_o", type);
             return false;
         }
         if (type.getKind() != ElementKind.CLASS) {
@@ -147,42 +153,39 @@ public final class HolderBuilderProcessor extends AbstractProcessor {
         }
         TypeName superClassName = ClassName.get(MoreTypes.asTypeElement(type.getSuperclass()));
         if (!TYPE_DEFAULT_VIEW_HOLDER.equals(superClassName)) {
-            mErrorReporter.abortWithError("Superclass of " + type + " must be " + TYPE_DEFAULT_VIEW_HOLDER + ", but it is " + superClassName, type);
+            mErrorReporter.abortWithError("Superclass of " + type + " must be " + TYPE_DEFAULT_VIEW_HOLDER
+                    + ", but it is " + superClassName, type);
             return false;
         }
         List<? extends TypeParameterElement> typeParameters = type.getTypeParameters();
         if (typeParameters != null && typeParameters.size() > 0) {
-            mErrorReporter.abortWithError("Class " + type + " must not have parameters=<" + typeParameters + ">", typeParameters.get(0));
+            mErrorReporter.abortWithError("Class " + type + " must not have parameters=<" + typeParameters + ">",
+                    typeParameters.get(0));
             return false;
         }
         return true;
     }
 
-    private boolean checkConstructorParameters(TypeElement type, List<? extends VariableElement> parameters, ExecutableElement constructor) {
+    private boolean checkConstructorParameters(TypeElement type,
+                                               List<? extends VariableElement> parameters,
+                                               ExecutableElement constructor) {
         if (parameters.size() == 0) {
-            mErrorReporter.abortWithError("Constructor of class " + type + " must have least one parameter", constructor);
+            mErrorReporter.abortWithError("Constructor of class " + type + " must have least one parameter",
+                    constructor);
             return false;
         }
         VariableElement firstParameter = parameters.get(0);
 
 
         if (!TYPE_VIEW.equals(ClassName.get(firstParameter.asType()))) {
-            mErrorReporter.abortWithError("First parameter is constructor of class " + type + " must be " + TYPE_VIEW + " but it is " + firstParameter.asType(), firstParameter);
+            mErrorReporter.abortWithError("First parameter is constructor of class " + type
+                    + " must be " + TYPE_VIEW + " but it is " + firstParameter.asType(), firstParameter);
             return false;
         }
         return true;
     }
 
     private String generateCode(@LayoutRes int layout, TypeElement type, String className) {
-
-        if (type == null) {
-            mErrorReporter.abortWithError("TypeElement is null", null);
-            return null;
-        }
-        if (className == null) {
-            mErrorReporter.abortWithError("Class name is null", type);
-            return null;
-        }
 
         List<? extends VariableElement> parameters = findConstructorParameters(type);
         if (parameters == null) {
@@ -191,25 +194,22 @@ public final class HolderBuilderProcessor extends AbstractProcessor {
 
         TypeMirror superclassTypeMirror = type.getSuperclass();
         TypeMirror modelTypeMirror = MoreTypes.asDeclared(superclassTypeMirror).getTypeArguments().get(0);
-
         List<? extends VariableElement> elements = parameters.subList(1, parameters.size());
         ImmutableList<FieldSpec> fields = SpecUtils.buildFields(elements);
         ImmutableList<ParameterSpec> constructorParameters = SpecUtils.buildParameters(elements);
-
         TypeName parameterizedBuilder = ParameterizedTypeName.get(TYPE_BUILDER, ClassName.get(modelTypeMirror));
-
         String pkg = TypeElementUtils.packageNameOf(type);
+
         TypeSpec.Builder subClass = TypeSpec.classBuilder(className)
                 .superclass(parameterizedBuilder)
                 .addFields(fields)
-                .addModifiers(FINAL, PUBLIC)
+                .addModifiers(Modifier.FINAL, Modifier.PUBLIC)
                 .addField(generateVersionConstant())
                 .addField(generateClassConstant(modelTypeMirror))
                 .addMethod(generateConstructor(constructorParameters))
                 .addMethod(generateVersionMethod())
                 .addMethod(generateClassMethod(modelTypeMirror))
                 .addMethod(generateBuildMethod(ClassName.get(type), superclassTypeMirror, layout, fields));
-
         JavaFile javaFile = JavaFile.builder(pkg, subClass.build()).build();
         return javaFile.toString();
     }
@@ -220,11 +220,14 @@ public final class HolderBuilderProcessor extends AbstractProcessor {
         if (constructors.size() == 1) {
             constructor = constructors.get(0);
         } else {
-            List<ExecutableElement> annotatedConstructors = TypeElementUtils.getConstructorsWithAnnotation(constructors, ANNOTATION_CONSTRUCTOR);
+            List<ExecutableElement> annotatedConstructors =
+                    TypeElementUtils.getConstructorsWithAnnotation(constructors, ANNOTATION_CONSTRUCTOR);
             if (annotatedConstructors.size() == 0) {
-                mErrorReporter.abortWithError("Found more than one constructors, but no one have annotation " + ANNOTATION_CONSTRUCTOR, constructors.get(0));
+                mErrorReporter.abortWithError("Found more than one constructors, but no one have annotation "
+                        + ANNOTATION_CONSTRUCTOR, constructors.get(0));
             } else if (annotatedConstructors.size() > 1) {
-                mErrorReporter.abortWithError("More than one constructors have annotation " + ANNOTATION_CONSTRUCTOR, annotatedConstructors.get(0));
+                mErrorReporter.abortWithError("More than one constructors have annotation "
+                        + ANNOTATION_CONSTRUCTOR, annotatedConstructors.get(0));
             } else {
                 constructor = annotatedConstructors.get(0);
             }
@@ -242,14 +245,15 @@ public final class HolderBuilderProcessor extends AbstractProcessor {
         MethodSpec.Builder build = MethodSpec.methodBuilder(METHOD_GET_ID)
                 .addAnnotation(Override.class);
 
-        return build.addModifiers(PUBLIC)
+        return build.addModifiers(Modifier.PUBLIC)
                 .returns(TypeName.INT)
                 .addStatement("return $L", CONSTANT_HOLDER_ID)
                 .build();
     }
 
     @NonNull
-    private MethodSpec generateBuildMethod(TypeName className, TypeMirror typeMirror, int layout, List<FieldSpec> parameters) {
+    private MethodSpec generateBuildMethod(TypeName className, TypeMirror typeMirror, int layout,
+                                           List<FieldSpec> parameters) {
         MethodSpec.Builder build = MethodSpec.methodBuilder(METHOD_BUILD);
 
         StringBuilder stringBuilder = new StringBuilder("return new " + className + "(view");
@@ -266,15 +270,16 @@ public final class HolderBuilderProcessor extends AbstractProcessor {
                 .addAnnotation(Override.class)
                 .addParameter(TYPE_VIEW_GROUP, VARIABLE_PARENT)
                 .returns(ClassName.get(typeMirror))
-                .addStatement("$T view = $T.from($L.getContext())" +
-                        ".inflate($L, $L, false)", TYPE_VIEW, TYPE_LAYOUT_INFLATER, VARIABLE_PARENT, layout, VARIABLE_PARENT)
+                .addStatement("$T view = $T.from($L.getContext())"
+                                + ".inflate($L, $L, false)", TYPE_VIEW, TYPE_LAYOUT_INFLATER,
+                        VARIABLE_PARENT, layout, VARIABLE_PARENT)
                 .addStatement(stringBuilder.toString())
                 .build();
     }
 
     private MethodSpec generateConstructor(ImmutableList<ParameterSpec> properties) {
         MethodSpec.Builder builder = MethodSpec.constructorBuilder()
-                .addModifiers(PUBLIC)
+                .addModifiers(Modifier.PUBLIC)
                 .addParameters(properties);
         for (ParameterSpec param : properties) {
             builder.addStatement("this._$N = $N", param.name, param.name);
@@ -286,7 +291,7 @@ public final class HolderBuilderProcessor extends AbstractProcessor {
         TypeName parameterizedClass = ParameterizedTypeName.get(TYPE_CLASS, ClassName.get(typeMirror));
         MethodSpec.Builder build = MethodSpec.methodBuilder(METHOD_GET_HOLDER_CLASS)
                 .addAnnotation(Override.class);
-        return build.addModifiers(PUBLIC)
+        return build.addModifiers(Modifier.PUBLIC)
                 .returns(parameterizedClass)
                 .addStatement("return $L", CONSTANT_MODEL_CLASS)
                 .build();
@@ -294,14 +299,15 @@ public final class HolderBuilderProcessor extends AbstractProcessor {
 
     private FieldSpec generateVersionConstant() {
         mVersion++;
-        return FieldSpec.builder(TypeName.INT, CONSTANT_HOLDER_ID, PUBLIC, STATIC, FINAL)
+        return FieldSpec.builder(TypeName.INT, CONSTANT_HOLDER_ID, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
                 .initializer("$L", mVersion)
                 .build();
     }
 
     private FieldSpec generateClassConstant(TypeMirror typeMirror) {
         TypeName parameterizedClass = ParameterizedTypeName.get(TYPE_CLASS, ClassName.get(typeMirror));
-        return FieldSpec.builder(parameterizedClass, CONSTANT_MODEL_CLASS, PUBLIC, STATIC, FINAL)
+        return FieldSpec.builder(parameterizedClass, CONSTANT_MODEL_CLASS,
+                Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
                 .initializer("$T$L", typeMirror, ".class")
                 .build();
     }
@@ -324,7 +330,6 @@ public final class HolderBuilderProcessor extends AbstractProcessor {
         return pkg + dot + name + postfix;
     }
 
-
     private void writeSourceFile(
             String className,
             String text,
@@ -341,7 +346,5 @@ public final class HolderBuilderProcessor extends AbstractProcessor {
                 writer.close();
             }
         } catch (IOException e) { /* silent */ }
-
     }
-
 }

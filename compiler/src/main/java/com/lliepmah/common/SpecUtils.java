@@ -19,6 +19,8 @@ public class SpecUtils {
 
     private static final char FIELD_PREFIX = '_';
 
+    private SpecUtils() { /*no-op */ }
+
     public static ImmutableList<ParameterSpec> buildParameters(List<? extends VariableElement> elements) {
         ImmutableList.Builder<ParameterSpec> builder = ImmutableList.builder();
         for (VariableElement variableElement : elements) {
@@ -37,7 +39,8 @@ public class SpecUtils {
 
     @NonNull
     public static FieldSpec buildField(VariableElement element) {
-        return FieldSpec.builder(ClassName.get(element.asType()), FIELD_PREFIX + String.valueOf(element.getSimpleName())).build();
+        return FieldSpec.builder(ClassName.get(element.asType()),
+                FIELD_PREFIX + String.valueOf(element.getSimpleName())).build();
     }
 
     @NonNull

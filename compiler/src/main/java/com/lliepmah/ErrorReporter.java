@@ -8,10 +8,10 @@ import javax.lang.model.element.Element;
 import javax.tools.Diagnostic;
 
 class ErrorReporter {
-    private final Messager messager;
+    private final Messager mMessager;
 
     ErrorReporter(ProcessingEnvironment processingEnv) {
-        this.messager = processingEnv.getMessager();
+        this.mMessager = processingEnv.getMessager();
     }
 
     /**
@@ -21,7 +21,7 @@ class ErrorReporter {
      * @param e   the element to which it pertains
      */
     void reportNote(String msg, Element e) {
-        messager.printMessage(Diagnostic.Kind.NOTE, msg, e);
+        mMessager.printMessage(Diagnostic.Kind.NOTE, msg, e);
     }
 
     /**
@@ -31,7 +31,7 @@ class ErrorReporter {
      * @param e   the element to which it pertains
      */
     void reportWarning(String msg, Element e) {
-        messager.printMessage(Diagnostic.Kind.WARNING, msg, e);
+        mMessager.printMessage(Diagnostic.Kind.WARNING, msg, e);
     }
 
     /**
@@ -44,7 +44,7 @@ class ErrorReporter {
      * @param e   the element to which it pertains
      */
     void reportError(String msg, Element e) {
-        messager.printMessage(Diagnostic.Kind.ERROR, msg, e);
+        mMessager.printMessage(Diagnostic.Kind.ERROR, msg, e);
     }
 
     /**

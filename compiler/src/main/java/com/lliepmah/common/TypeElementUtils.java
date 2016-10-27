@@ -8,13 +8,11 @@ import java.lang.annotation.Annotation;
 import java.util.List;
 
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.VariableElement;
-
-import static javax.lang.model.element.ElementKind.CONSTRUCTOR;
 
 /**
  * Created by Arthur Korchagin on 26.10.16
@@ -22,6 +20,7 @@ import static javax.lang.model.element.ElementKind.CONSTRUCTOR;
 
 public class TypeElementUtils {
 
+    private TypeElementUtils() { /* no-op */ }
 
     public static boolean isAbstract(@NonNull TypeElement element) {
         return element.getModifiers().contains(Modifier.ABSTRACT);
@@ -30,14 +29,16 @@ public class TypeElementUtils {
     public static ImmutableList<ExecutableElement> getConstructors(@NonNull TypeElement element) {
         ImmutableList.Builder<ExecutableElement> elementsBuilder = ImmutableList.builder();
         for (Element enclosedElement : element.getEnclosedElements()) {
-            if (enclosedElement.getKind() == CONSTRUCTOR && enclosedElement instanceof ExecutableElement) {
+            if (enclosedElement.getKind() == ElementKind.CONSTRUCTOR && enclosedElement instanceof ExecutableElement) {
                 elementsBuilder.add((ExecutableElement) enclosedElement);
             }
         }
         return elementsBuilder.build();
     }
 
-    public static ImmutableList<ExecutableElement> getConstructorsWithAnnotation(List<ExecutableElement> constructors, Class<? extends Annotation> annotation) {
+    public static ImmutableList<ExecutableElement> getConstructorsWithAnnotation(
+            List<ExecutableElement> constructors,
+            Class<? extends Annotation> annotation) {
         ImmutableList.Builder<ExecutableElement> elementsBuilder = ImmutableList.builder();
         for (ExecutableElement element : constructors) {
             if (element.getAnnotation(annotation) != null) {

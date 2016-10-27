@@ -22,6 +22,9 @@ package com.lliepmah;
  * @author emcmanus@google.com (Éamonn McManus)
  */
 class Reformatter {
+
+    private Reformatter() { /* no-op */ }
+
     static String fixup(String s) {
         s = removeTrailingSpace(s);
         s = compressBlankLines(s);
@@ -49,14 +52,14 @@ class Reformatter {
         return sb.toString();
     }
 
+
+    /* Remove extra blank lines. An "extra" blank line is either a blank line where the previous
+       line was also blank; or a blank line that appears inside parentheses or inside more than one
+       set of braces. This means that we preserve blank lines inside our top-level class, but not
+       within our generated methods.*/
     private static String compressBlankLines(String s) {
-        // Remove extra blank lines. An "extra" blank line is either a blank line where the previous
-        // line was also blank; or a blank line that appears inside parentheses or inside more than one
-        // set of braces. This means that we preserve blank lines inside our top-level class, but not
-        // within our generated methods.
         StringBuilder sb = new StringBuilder(s.length());
-        int braces = 0;
-        int parens = 0;
+        int braces = 0, parens = 0;
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
             switch (c) {
@@ -83,6 +86,8 @@ class Reformatter {
                         }
                         i = j - 1;
                     }
+                    break;
+                default:
                     break;
             }
             sb.append(c);
