@@ -8,6 +8,8 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
 
+        println "lib:versionCode: ${rootProject.ext.libraryVersionCode}"
+
         versionCode rootProject.ext.libraryVersionCode
         versionName rootProject.ext.libraryVersion
 
