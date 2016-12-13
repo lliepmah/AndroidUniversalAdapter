@@ -100,15 +100,17 @@ public class UniversalAdapter extends RecyclerView.Adapter<DefaultViewHolder> {
         add(mItems.size(), item, builderId);
     }
 
-    public void add(Object item) {
-        add(mItems.size(), item);
+    public boolean add(Object item) {
+        return add(mItems.size(), item);
     }
 
-    public void add(int index, Object item) {
+    public boolean add(int index, Object item) {
         if (item != null) {
             int builderId = findBuilderId(item);
             mItems.add(index, ViewModelWrapper.build(item, builderId));
+            return true;
         }
+        return false;
     }
 
     public void add(int index, Object item, int builderId) {
@@ -172,9 +174,13 @@ public class UniversalAdapter extends RecyclerView.Adapter<DefaultViewHolder> {
         }
     }
 
-    public void clear() {
+    public boolean clear() {
+        if (mItems == null || mItems.size() == 0) {
+            return false;
+        }
+
         mItems.clear();
-        notifyDataSetChanged();
+        return true;
     }
 
     /* Internal utils */
@@ -213,7 +219,6 @@ public class UniversalAdapter extends RecyclerView.Adapter<DefaultViewHolder> {
                 return mItems.indexOf(wrapper);
             }
         }
-
         return -1;
     }
 }

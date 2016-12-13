@@ -43,6 +43,9 @@ dependencies {
     testCompile deps.hamcrest
     testCompile deps.robolectric
 
+    testCompile deps.truth
+    testCompile deps.junit
+
 }
 
 apply from: 'jacoco.gradle'
