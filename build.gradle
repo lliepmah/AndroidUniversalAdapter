@@ -38,8 +38,16 @@ def supportLibraryVersion = '25.0.1'
 def butterknifeLatestReleaseVersion = '8.4.0'
 
 ext {
-    libraryVersion = '0.0.1'
-    libraryVersionCode = 1
+    jcenterGroup = 'universal-adapter'
+    gitHubUrl = 'https://github.com/lliepmah/AndroidUniversalAdapter'
+
+    libraryVersionCode = System.getenv('TRAVIS_BUILD_NUMBER') ?: 2
+
+    println "libraryVersionCode=$libraryVersionCode"
+
+    majorVersion = 0
+    minorVersion = 0
+    libraryVersion = "$majorVersion.$minorVersion.$libraryVersionCode"
 
     minSdkVersion = 9
     targetSdkVersion = 25

@@ -1,5 +1,4 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.jfrog.bintray'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -47,3 +46,4 @@ dependencies {
 }
 
 apply from: 'jacoco.gradle'
+apply from: 'bintray.gradle'

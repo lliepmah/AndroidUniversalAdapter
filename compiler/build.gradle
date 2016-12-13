@@ -6,6 +6,11 @@ apply plugin: 'checkstyle'
 sourceCompatibility = rootProject.ext.sourceCompatibilityVersion
 targetCompatibility = rootProject.ext.targetCompatibilityVersion
 
+configurations {
+    provided
+    compile.extendsFrom provided
+}
+
 def logger = new com.android.build.gradle.internal.LoggerWrapper(project.logger)
 def sdkHandler = new com.android.build.gradle.internal.SdkHandler(project, logger)
 for (File file : sdkHandler.sdkLoader.repositories) {
@@ -26,3 +31,5 @@ dependencies {
     testCompile deps.junit
     testCompile deps.truth
 }
+
+apply from: 'bintray.gradle'
