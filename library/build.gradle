@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.jfrog.bintray'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -10,6 +11,8 @@ android {
 
         versionCode rootProject.ext.libraryVersionCode
         versionName rootProject.ext.libraryVersion
+
+        vectorDrawables.useSupportLibrary = true
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -28,18 +31,18 @@ dependencies {
     compile deps.supportAnnotations
     compile deps.recyclerView
 
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+    androidTestCompile(deps.espressoCore, {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
 
-    testCompile('junit:junit:4.12') {
+    testCompile(deps.junit) {
         exclude group: 'org.hamcrest'
     }
-    testCompile('org.mockito:mockito-all:1.10.19') {
+    testCompile(deps.mockito) {
         exclude group: 'org.hamcrest'
     }
-    testCompile 'org.hamcrest:java-hamcrest:2.0.0.0'
-    testCompile 'org.robolectric:robolectric:3.0'
+    testCompile deps.hamcrest
+    testCompile deps.robolectric
 
 }
 

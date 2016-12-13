@@ -2,16 +2,18 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.neenbedankt.android-apt'
 
 android {
-    compileSdkVersion 24
-    buildToolsVersion "24.0.2"
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+
     defaultConfig {
-        applicationId "ru.lliepmah.kotlin"
-        minSdkVersion 15
-        targetSdkVersion 24
+        applicationId "ru.lliepmah.sample"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
+    
     buildTypes {
         release {
             minifyEnabled false
@@ -28,13 +30,10 @@ dependencies {
     compile deps.butterknife
     apt deps.butterknifeCompiler
 
-//    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
-//        exclude group: 'com.android.support', module: 'support-annotations'
-//    })
     compile deps.cardview
     compile deps.supportCompat
     compile deps.recyclerView
 
-    testCompile 'junit:junit:4.12'
+    testCompile deps.junit
 
 }

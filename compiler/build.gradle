@@ -1,3 +1,5 @@
+import org.gradle.internal.jvm.Jvm
+
 apply plugin: 'java'
 apply plugin: 'checkstyle'
 
@@ -19,7 +21,7 @@ dependencies {
     compile deps.javapoet
 
     compileOnly deps.android
-    compileOnly files(org.gradle.internal.jvm.Jvm.current().getToolsJar())
+    compileOnly files(Jvm.current().getToolsJar())
 
     testCompile deps.junit
     testCompile deps.truth
