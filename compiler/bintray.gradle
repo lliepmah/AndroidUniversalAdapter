@@ -51,10 +51,16 @@ publishing {
 
 bintray {
     Properties properties = new Properties()
-    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+    def localProp = project.rootProject.file('local.properties')
 
-    user = System.getenv('bintrayUser') ?: properties.getProperty('bintrayUser')
-    key = System.getenv('bintrayKey') ?: properties.getProperty('bintrayKey')
+    if (localProp.exists()) {
+        properties.load(localProp.newDataInputStream())
+        user = properties.getProperty('bintrayUser')
+        key = properties.getProperty('bintrayKey')
+    } else {
+        user = System.getenv('bintrayUser') ?: ""
+        key = System.getenv('bintrayKey') ?: ""
+    }
 
     configurations = ['archives']
     publications = ['mavenJava']

@@ -41,7 +41,7 @@ ext {
     jcenterGroup = 'universal-adapter'
     gitHubUrl = 'https://github.com/lliepmah/AndroidUniversalAdapter'
 
-    libraryVersionCode = System.getenv('TRAVIS_BUILD_NUMBER') ?: 2
+    libraryVersionCode = System.getenv('TRAVIS_BUILD_NUMBER') ?: 3
 
     println "libraryVersionCode=$libraryVersionCode"
 
