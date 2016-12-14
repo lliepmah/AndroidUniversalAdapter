@@ -1,4 +1,4 @@
-package com.lliepmah.common;
+package ru.lliepmah.common;
 
 import android.support.annotation.NonNull;
 

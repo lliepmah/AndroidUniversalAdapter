@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.lliepmah;
+package ru.lliepmah;
 
 /**
  * Postprocessor that runs over the output of the template engine in order to make it look nicer.

@@ -1,6 +1,6 @@
-package com.lliepmah;
+package ru.lliepmah;
 
-import com.lliepmah.exceptions.AbortProcessingException;
+import ru.lliepmah.exceptions.AbortProcessingException;
 
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;

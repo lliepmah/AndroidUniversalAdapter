@@ -1,4 +1,4 @@
-package com.lliepmah;
+package ru.lliepmah;
 
 import android.annotation.SuppressLint;
 import android.support.annotation.LayoutRes;
@@ -8,8 +8,9 @@ import com.google.auto.common.MoreTypes;
 import com.google.auto.service.AutoService;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import com.lliepmah.common.SpecUtils;
-import com.lliepmah.common.TypeElementUtils;
+
+import ru.lliepmah.common.SpecUtils;
+import ru.lliepmah.common.TypeElementUtils;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;

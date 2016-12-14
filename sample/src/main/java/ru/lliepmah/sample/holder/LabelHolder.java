@@ -3,8 +3,8 @@ package ru.lliepmah.sample.holder;
 import android.view.View;
 import android.widget.TextView;
 
-import com.lliepmah.HolderBuilder;
-import com.lliepmah.HolderConstructor;
+import ru.lliepmah.HolderBuilder;
+import ru.lliepmah.HolderConstructor;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

@@ -1,10 +1,9 @@
 package ru.lliepmah.sample.holder;
 
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.lliepmah.HolderBuilder;
+import ru.lliepmah.HolderBuilder;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

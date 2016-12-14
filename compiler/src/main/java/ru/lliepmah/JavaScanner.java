@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.lliepmah;
+package ru.lliepmah;
 
 /**
  * A simplistic Java scanner. This scanner returns a sequence of tokens that can be used to
