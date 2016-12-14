@@ -10,15 +10,15 @@ task jacocoTestReport(type: JacocoReport) {
             destination = "${project.buildDir}/reports/jacoco/test/jacocoTestReport.xml"
         }
     }
-//    jacocoClasspath = project.configurations['androidJacocoAnt']
-//    sourceDirectories = fileTree(dir: "${project.projectDir}/src/main/java")
-//    classDirectories = fileTree(dir: "${project.buildDir}/intermediates/classes/debug", excludes: [
-//            '**/R.class',
-//            '**/R$*.class',
-//            '**/BuildConfig.*',
-//            '**/Manifest*.*',
-//            '**/*Test*.*',
-//            '**/*Assert*.*'
-//    ])
-//    executionData = fileTree(dir: project.buildDir, includes: ['**/*.exec', '**/*.ec'])
+    jacocoClasspath = project.configurations['androidJacocoAnt']
+    sourceDirectories = fileTree(dir: "${project.projectDir}/src/main/java")
+    classDirectories = fileTree(dir: "${project.buildDir}/intermediates/classes/debug", excludes: [
+            '**/R.class',
+            '**/R$*.class',
+            '**/BuildConfig.*',
+            '**/Manifest*.*',
+            '**/*Test*.*',
+            '**/*Assert*.*'
+    ])
+    executionData = fileTree(dir: project.buildDir, includes: ['**/*.exec', '**/*.ec'])
 }
