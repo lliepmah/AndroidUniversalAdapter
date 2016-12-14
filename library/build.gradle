@@ -47,8 +47,8 @@ dependencies {
     compile deps.supportAnnotations
     compile deps.recyclerView
 
-    testCompile 'org.powermock:powermock-api-mockito:1.6.4'
-    testCompile 'org.powermock:powermock-module-junit4:1.6.4'
+    testCompile deps.powermockMockito
+    testCompile deps.powermockJunit4
 
     testCompile(deps.junit) {
         exclude group: 'org.hamcrest'
