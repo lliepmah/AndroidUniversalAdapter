@@ -1,7 +1,7 @@
 apply plugin: 'jacoco'
 apply plugin: 'com.github.kt3k.coveralls'
 
-task jacocoTestReport(type: JacocoReport, dependsOn: ['testDebugUnitTest']) {
+task jacocoTestReport(type: JacocoReport) {
     group = 'Reporting'
     description = 'Generate Jacoco coverage reports after running tests.'
     reports {

@@ -17,9 +17,26 @@ android {
 
     }
     buildTypes {
+        debug {
+            testCoverageEnabled true
+        }
+
         release {
+            testCoverageEnabled true
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    testOptions {
+        unitTests {
+            all {
+                jvmArgs '-noverify'
+                jacoco {
+                    includeNoLocationClasses = true
+                }
+            }
+
         }
     }
 }
@@ -30,9 +47,8 @@ dependencies {
     compile deps.supportAnnotations
     compile deps.recyclerView
 
-    androidTestCompile(deps.espressoCore, {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
+    testCompile 'org.powermock:powermock-api-mockito:1.6.4'
+    testCompile 'org.powermock:powermock-module-junit4:1.6.4'
 
     testCompile(deps.junit) {
         exclude group: 'org.hamcrest'
