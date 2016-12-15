@@ -20,7 +20,8 @@ import static org.mockito.Mockito.when;
  */
 
 @RunWith(RobolectricTestRunner.class)
-@Config(manifest = Config.DEFAULT_MANIFEST)
+//@Config(constants = BuildConfig.class, manifest = "./src/main/AndroidManifest.xml")
+@Config(sdk = 21)
 public class UniversalAdapterTest {
 
     private Builder mBuilder1;
