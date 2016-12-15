@@ -3,7 +3,7 @@
 [![Apache License](https://img.shields.io/badge/license-Apache%20v2-green.svg)](https://github.com/lliepmah/AndroidUniversalAdapter/blob/master/LICENSE) ![minSdkVersion](https://img.shields.io/badge/minSdkVersion-15-blue.svg?style=true?style=true) ![compileSdkVersion](https://img.shields.io/badge/compileSdkVersion-25-green.svg?style=true)
 [![Build Status](https://travis-ci.org/lliepmah/AndroidUniversalAdapter.svg?branch=master)](https://travis-ci.org/lliepmah/AndroidUniversalAdapter) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/6728f8d9467b4756be1e1b615023b7ba)](https://www.codacy.com/app/lliepmah/AndroidUniversalAdapter?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=lliepmah/AndroidUniversalAdapter&amp;utm_campaign=Badge_Grade) [![Coverage Status](https://coveralls.io/repos/github/lliepmah/AndroidUniversalAdapter/badge.svg?branch=master)](https://coveralls.io/github/lliepmah/AndroidUniversalAdapter?branch=master)
 
-[![Dependency Status](https://www.versioneye.com/user/projects/58514506295650004d9ef2da/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/58514506295650004d9ef2da)
+[![Dependency Status](https://www.versioneye.com/user/projects/58514506295650004d9ef2da/badge.svg?style=true)](https://www.versioneye.com/user/projects/58514506295650004d9ef2da)
 Gradle
 --------
 
