@@ -36,6 +36,7 @@ import javax.lang.model.element.ElementVisitor;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.Name;
+import javax.lang.model.element.NestingKind;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
@@ -226,7 +227,6 @@ public class HolderBuilderProcessorTest {
     @Test
     public void generatedClassName_withoutPackage() throws Exception {
         final String TEST = "_test_";
-
         Name name = Mockito.mock(Name.class);
         when(name.toString()).thenReturn(TEST);
 
@@ -269,6 +269,44 @@ public class HolderBuilderProcessorTest {
         assertThat((String) method.invoke(mProcessor, type, 0), is(TEST + "." + TEST + "Builder"));
         assertThat((String) method.invoke(mProcessor, type, 1), is(TEST + "." + TEST + "$Builder"));
         assertThat((String) method.invoke(mProcessor, type, 2), is(TEST + "." + TEST + "$$Builder"));
+    }
+
+
+    @Test
+    public void checkTypeElement_unexpectedSuperclassOfType() throws Exception {
+        expectErrorType(ErrorType.UNEXPECTED_SUPERCLASS_OF_TYPE);
+
+        final String TEST = "_test_";
+        Name name = Mockito.mock(Name.class);
+        when(name.toString()).thenReturn(TEST);
+
+        PackageElement packageElement= mock(PackageElement.class);
+        when(packageElement.getKind()).thenReturn(ElementKind.PACKAGE);
+        when(packageElement.getSimpleName()).thenReturn(name);
+        when(packageElement.getQualifiedName()).thenReturn(name);
+
+        TypeElement superClassTypeElement = mock(TypeElement.class);
+        when(superClassTypeElement.getKind()).thenReturn(ElementKind.CLASS);
+        when(superClassTypeElement.getNestingKind()).thenReturn(NestingKind.TOP_LEVEL);
+        when(superClassTypeElement.getEnclosingElement()).thenReturn(packageElement);
+        when(superClassTypeElement.getSimpleName()).thenReturn(name);
+
+        Element superClassElement = mock(Element.class);
+        when(superClassElement.accept(any(ElementVisitor.class),any(Object.class))).thenReturn(superClassTypeElement);
+
+
+        TypeMirror superClass = mock(TypeMirror.class);
+        when(superClass.accept(any(TypeVisitor.class), any(Object.class))).thenReturn(superClassElement);
+
+        TypeElement type = Mockito.mock(TypeElement.class);
+        when(type.getKind()).thenReturn(ElementKind.CLASS);
+        when(type.getSuperclass()).thenReturn(superClass);
+
+        HolderBuilder holderBuilderAnnotation = Mockito.mock(HolderBuilder.class);
+
+        final Method method = HolderBuilderProcessor.class.getDeclaredMethod("checkTypeElement", TypeElement.class, HolderBuilder.class);
+        method.setAccessible(true);
+        method.invoke(mProcessor, type, holderBuilderAnnotation);
     }
 
     @Test
