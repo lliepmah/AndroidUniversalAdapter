@@ -111,72 +111,60 @@ allprojects {
 
 def testableProjectsNames = [':compiler', ':library']
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
-}
-
 def Set<Project> publishedProjects = subprojects.findAll() {
     testableProjectsNames.contains(it.path)
 }
-
 task jacocoRootReport(type: JacocoReport, group: 'Coverage reports') {
+
     group = 'Reporting'
     description = 'Generates an aggregate report from all subprojects'
+
+    sourceDirectories = files(
+            publishedProjects.projectDir.collect {
+                file(it.path + "/src/main/java")
+            })
+
+    executionData = files(
+            publishedProjects.buildDir.collect {
+                fileTree(dir: "$it/jacoco/", includes: ['**/*.exec', '**/*.ec'])
+            })
+
+    classDirectories = files(publishedProjects.buildDir.collect {
+        fileTree(
+                dir: it,
+                includes: [
+                        '**/classes/main/**/*.class',
+                        '**/classes/debug/**/*.class'
+                ],
+                excludes: [
+                        '**/R.class',
+                        '**/R$*.class',
+                        '**/BuildConfig.*',
+                        '**/Manifest*.*',
+                        '**/*Test*.*',
+                        '**/*Assert*.*',
+                        '**/*Exception*.*',
+                ]
+        )
+    })
 
     reports {
         html.enabled = true // human readable
         xml.enabled = true // required by coveralls
     }
-
-//    jacocoClasspath = project.configurations['androidJacocoAnt']
-
-    sourceDirectories = files(
-            publishedProjects.projectDir.collect {
-                fileTree(dir: it.path + "/src/main/java")
-            })
-
-
-    classDirectories = files(
-            publishedProjects.projectDir.collect {
-                fileTree(
-                        dir: it.path + "/intermediates/classes/debug",
-                        excludes: [
-                                '**/R.class',
-                                '**/R$*.class',
-                                '**/BuildConfig.*',
-                                '**/Manifest*.*',
-                                '**/*Test*.*',
-                                '**/*Assert*.*',
-                                '**/*Exception*.*',
-                        ]
-                )
-            })
-
-    sourceDirectories.forEach {
-        println "-> source=${it}"
-    }
-
-    classDirectories.forEach {
-        println "-> class=${it}"
-    }
-
-    executionData = fileTree(dir: project.buildDir, includes: ['**/*.exec', '**/*.ec'])
-
-}
-
-task jacocoTestReport(type: JacocoReport) {
-
-
 }
 
 coveralls {
     sourceDirs = publishedProjects.projectDir.collect {
         fileTree(dir: it.path + "/src/main/java")
     }
-
-//    jacocoReportPath = "${buildDir}/reports/jacoco/jacocoRootReport/jacocoRootReport.xml"
+    jacocoReportPath = "${buildDir}/reports/jacoco/jacocoRootReport/jacocoRootReport.xml"
 }
 
 tasks.coveralls {
     dependsOn jacocoRootReport
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
 }

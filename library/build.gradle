@@ -67,5 +67,4 @@ dependencies {
 
 }
 
-//apply from: 'jacoco.gradle'
 apply from: 'bintray.gradle'
