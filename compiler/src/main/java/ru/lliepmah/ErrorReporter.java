@@ -1,11 +1,12 @@
 package ru.lliepmah;
 
-import ru.lliepmah.exceptions.AbortProcessingException;
-
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
 import javax.tools.Diagnostic;
+
+import ru.lliepmah.exceptions.AbortProcessingException;
+import ru.lliepmah.exceptions.ErrorType;
 
 class ErrorReporter {
     private final Messager mMessager;
@@ -47,15 +48,10 @@ class ErrorReporter {
         mMessager.printMessage(Diagnostic.Kind.ERROR, msg, e);
     }
 
-    /**
-     * Issue a compilation error and abandon the processing of this class. This does not prevent the
-     * processing of other classes.
-     *
-     * @param msg the text of the error
-     * @param e   the element to which it pertains
-     */
-    void abortWithError(String msg, Element e) {
-        reportError(msg, e);
-        throw new AbortProcessingException();
+    void abortWithError(Element element, ErrorType errorType, Object... args) {
+        String message = errorType.getMessage(args);
+        reportError(message, element);
+        throw new AbortProcessingException(message, errorType);
     }
+
 }

@@ -8,9 +8,6 @@ import com.google.auto.common.MoreTypes;
 import com.google.auto.service.AutoService;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-
-import ru.lliepmah.common.SpecUtils;
-import ru.lliepmah.common.TypeElementUtils;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
@@ -43,6 +40,10 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import javax.tools.JavaFileObject;
 
+import ru.lliepmah.common.SpecUtils;
+import ru.lliepmah.common.TypeElementUtils;
+import ru.lliepmah.exceptions.ErrorType;
+
 @SuppressLint("NewApi")
 @AutoService(Processor.class)
 public final class HolderBuilderProcessor extends AbstractProcessor {
@@ -58,7 +59,6 @@ public final class HolderBuilderProcessor extends AbstractProcessor {
     private static final TypeName TYPE_DEFAULT_VIEW_HOLDER = ClassName.get("ru.lliepmah.lib", "DefaultViewHolder");
     private static final TypeName TYPE_VIEW = ClassName.get("android.view", "View");
     private static final TypeName TYPE_VIEW_GROUP = ClassName.get("android.view", "ViewGroup");
-    private static final TypeName TYPE_CONTEXT = ClassName.get("android.content", "Context");
     private static final TypeName TYPE_LAYOUT_INFLATER = ClassName.get("android.view", "LayoutInflater");
 
     /* Constants */
@@ -71,7 +71,6 @@ public final class HolderBuilderProcessor extends AbstractProcessor {
     private static final String METHOD_GET_HOLDER_CLASS = "getHolderClass";
 
     /* Variables */
-    private static final String VARIABLE_CONTEXT = "context";
     private static final String VARIABLE_PARENT = "parent";
 
     /* Postfix */
@@ -88,7 +87,7 @@ public final class HolderBuilderProcessor extends AbstractProcessor {
 
     @Override
     public Set<String> getSupportedAnnotationTypes() {
-        Set<String> types = new LinkedHashSet<String>();
+        Set<String> types = new LinkedHashSet<>();
         for (Class<? extends Annotation> annotation : getSupportedAnnotations()) {
             types.add(annotation.getCanonicalName());
         }
@@ -96,7 +95,7 @@ public final class HolderBuilderProcessor extends AbstractProcessor {
     }
 
     private Set<Class<? extends Annotation>> getSupportedAnnotations() {
-        Set<Class<? extends Annotation>> annotations = new LinkedHashSet<Class<? extends Annotation>>();
+        Set<Class<? extends Annotation>> annotations = new LinkedHashSet<>();
         annotations.add(ANNOTATION);
         return annotations;
     }
@@ -117,20 +116,15 @@ public final class HolderBuilderProcessor extends AbstractProcessor {
 
     private void processType(TypeElement type) {
         if (type == null) {
-            mErrorReporter.abortWithError("TypeElement is null", null);
-            return;
+            mErrorReporter.abortWithError(null, ErrorType.TYPE_ELEMENT_IS_NULL);
         }
 
         String fqClassName = generatedSubclassName(type, 0);
         String className = TypeElementUtils.simpleNameOf(fqClassName);
-        if (className == null) {
-            mErrorReporter.abortWithError("Class name is null", type);
-        }
 
         HolderBuilder holderBuilderAnnotation = type.getAnnotation(ANNOTATION);
-        if (!checkTypeElement(type, holderBuilderAnnotation)) {
-            return;
-        }
+
+        checkTypeElement(type, holderBuilderAnnotation);
 
         String source = generateCode(holderBuilderAnnotation.value(), type, className);
         source = Reformatter.fixup(source);
@@ -138,52 +132,44 @@ public final class HolderBuilderProcessor extends AbstractProcessor {
         writeSourceFile(fqClassName, source, type);
     }
 
-    private boolean checkTypeElement(TypeElement type, HolderBuilder holderBuilderAnnotation) {
+    private void checkTypeElement(TypeElement type, HolderBuilder holderBuilderAnnotation) {
         if (holderBuilderAnnotation == null) {
-            mErrorReporter.abortWithError("annotation processor for @HolderBuilder was invoked with a"
-                    + "type annotated differently; compiler bug? O_o", type);
-            return false;
+            mErrorReporter.abortWithError(type, ErrorType.COMPILER_BUG, HolderBuilder.class.getName());
         }
+
         if (type.getKind() != ElementKind.CLASS) {
-            mErrorReporter.abortWithError("@" + HolderBuilder.class.getName() + " only applies to classes", type);
-            return false;
+            mErrorReporter.abortWithError(type, ErrorType.ANNOTATION_ONLY_FOR_CLASSES, HolderBuilder.class.getName());
         }
+
         if (TypeElementUtils.isAbstract(type)) {
-            mErrorReporter.abortWithError("Class " + type + " must not be abstract", type);
-            return false;
+            mErrorReporter.abortWithError(type, ErrorType.CLASS_MUST_NOT_BE_ABSTRACT, type);
         }
+
         TypeName superClassName = ClassName.get(MoreTypes.asTypeElement(type.getSuperclass()));
         if (!TYPE_DEFAULT_VIEW_HOLDER.equals(superClassName)) {
-            mErrorReporter.abortWithError("Superclass of " + type + " must be " + TYPE_DEFAULT_VIEW_HOLDER
-                    + ", but it is " + superClassName, type);
-            return false;
+            mErrorReporter.abortWithError(type, ErrorType.UNEXPECTED_SUPERCLASS_OF_TYPE, type, TYPE_DEFAULT_VIEW_HOLDER, superClassName);
         }
+
         List<? extends TypeParameterElement> typeParameters = type.getTypeParameters();
         if (typeParameters != null && typeParameters.size() > 0) {
-            mErrorReporter.abortWithError("Class " + type + " must not have parameters=<" + typeParameters + ">",
-                    typeParameters.get(0));
-            return false;
+            mErrorReporter.abortWithError(typeParameters.get(0), ErrorType.ILLEGAL_TYPE_PARAMETER, typeParameters);
         }
-        return true;
+
     }
 
-    private boolean checkConstructorParameters(TypeElement type,
-                                               List<? extends VariableElement> parameters,
-                                               ExecutableElement constructor) {
+    private void checkConstructorParameters(TypeElement type,
+                                            List<? extends VariableElement> parameters,
+                                            ExecutableElement constructor) {
         if (parameters.size() == 0) {
-            mErrorReporter.abortWithError("Constructor of class " + type + " must have least one parameter",
-                    constructor);
-            return false;
+            mErrorReporter.abortWithError(constructor, ErrorType.CONSTRUCTOR_MUST_HAVE_LEAST_ONE_PARAMETER, type);
         }
         VariableElement firstParameter = parameters.get(0);
 
 
         if (!TYPE_VIEW.equals(ClassName.get(firstParameter.asType()))) {
-            mErrorReporter.abortWithError("First parameter is constructor of class " + type
-                    + " must be " + TYPE_VIEW + " but it is " + firstParameter.asType(), firstParameter);
-            return false;
+            mErrorReporter.abortWithError(firstParameter, ErrorType.UNEXPECTED_FIRST_PARAMETER_OF_CONSTRUCTOR,
+                    type, TYPE_VIEW, firstParameter.asType());
         }
-        return true;
     }
 
     private String generateCode(@LayoutRes int layout, TypeElement type, String className) {
@@ -218,26 +204,27 @@ public final class HolderBuilderProcessor extends AbstractProcessor {
     private List<? extends VariableElement> findConstructorParameters(TypeElement type) {
         List<ExecutableElement> constructors = TypeElementUtils.getConstructors(type);
         ExecutableElement constructor = null;
+
         if (constructors.size() == 1) {
             constructor = constructors.get(0);
         } else {
+
             List<ExecutableElement> annotatedConstructors =
                     TypeElementUtils.getConstructorsWithAnnotation(constructors, ANNOTATION_CONSTRUCTOR);
+
             if (annotatedConstructors.size() == 0) {
-                mErrorReporter.abortWithError("Found more than one constructors, but no one have annotation "
-                        + ANNOTATION_CONSTRUCTOR, constructors.get(0));
+                mErrorReporter.abortWithError(constructors.size() > 0 ? constructors.get(0) : null,
+                        ErrorType.NO_ANNOTATION_IN_CONSTRUCTORS, ANNOTATION_CONSTRUCTOR.toString());
             } else if (annotatedConstructors.size() > 1) {
-                mErrorReporter.abortWithError("More than one constructors have annotation "
-                        + ANNOTATION_CONSTRUCTOR, annotatedConstructors.get(0));
+                mErrorReporter.abortWithError(annotatedConstructors.get(0),
+                        ErrorType.MORE_THAN_ONE_CONSTRUCTORS_HAVE_ANNOTATION, ANNOTATION_CONSTRUCTOR.toString());
             } else {
                 constructor = annotatedConstructors.get(0);
             }
         }
-        if (constructor == null) {
-            return null;
-        }
         List<? extends VariableElement> parameters = constructor.getParameters();
-        return checkConstructorParameters(type, parameters, constructor) ? parameters : null;
+        checkConstructorParameters(type, parameters, constructor);
+        return parameters;
     }
 
     /* Methods generators */
@@ -315,11 +302,12 @@ public final class HolderBuilderProcessor extends AbstractProcessor {
 
     /* End of methods generators */
 
-
+    @NonNull
     private String generatedSubclassName(TypeElement type, int depth) {
         return generatedClassName(type, Strings.repeat("$", depth) + POSTFIX_BUILDER);
     }
 
+    @NonNull
     private String generatedClassName(TypeElement type, String postfix) {
         String name = type.getSimpleName().toString();
         while (type.getEnclosingElement() instanceof TypeElement) {
@@ -339,12 +327,8 @@ public final class HolderBuilderProcessor extends AbstractProcessor {
             JavaFileObject sourceFile =
                     processingEnv.getFiler().
                             createSourceFile(className, originatingType);
-            Writer writer = sourceFile.openWriter();
-            try {
+            try (Writer writer = sourceFile.openWriter()) {
                 writer.write(text);
-            } finally {
-                //noinspection ThrowFromFinallyBlock
-                writer.close();
             }
         } catch (IOException e) { /* silent */ }
     }
