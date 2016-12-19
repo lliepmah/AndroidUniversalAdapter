@@ -29,7 +29,7 @@ cache:
 #    - ./gradlew clean checkstyle
 
 script:
-    - ./gradlew testDebugUnitTest jacocoRootReport coveralls 
+    - ./gradlew test coveralls
 
 notifications:
   email: false
