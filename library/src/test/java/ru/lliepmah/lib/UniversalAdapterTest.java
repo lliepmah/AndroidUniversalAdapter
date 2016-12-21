@@ -1,5 +1,8 @@
 package ru.lliepmah.lib;
 
+import android.view.ViewGroup;
+
+import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,7 +14,9 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -29,14 +34,21 @@ public class UniversalAdapterTest {
 
     @Before
     public void setUp() throws Exception {
+        DefaultViewHolder holder1 = mock(DefaultViewHolder.class);
+        when(holder1.getItemViewType()).thenReturn(1);
+
+        DefaultViewHolder holder2 = mock(DefaultViewHolder.class);
+        when(holder2.getItemViewType()).thenReturn(2);
 
         mBuilder1 = mock(Builder.class);
         when(mBuilder1.getHolderClass()).thenReturn(Model1.class);
         when(mBuilder1.getId()).thenReturn(1);
+        when(mBuilder1.build(any(ViewGroup.class))).thenReturn(holder1);
 
         mBuilder2 = mock(Builder.class);
         when(mBuilder2.getHolderClass()).thenReturn(Model2.class);
         when(mBuilder2.getId()).thenReturn(2);
+        when(mBuilder2.build(any(ViewGroup.class))).thenReturn(holder2);
 
     }
 
@@ -80,8 +92,16 @@ public class UniversalAdapterTest {
     }
 
     @Test
+    public void onCreateViewHolder() throws Exception {
+        UniversalAdapter adapter = new UniversalAdapter(Arrays.asList(mBuilder1, mBuilder2));
+        ViewGroup parent = mock(ViewGroup.class);
+        DefaultViewHolder viewHolder = adapter.onCreateViewHolder(parent, mBuilder1.getId());
+        assertThat(viewHolder.getItemViewType(), Is.is(mBuilder1.getId()));
+    }
+
+    @Test
     public void getItemCount() throws Exception {
-        UniversalAdapter adapter = new UniversalAdapter(mBuilder1, mBuilder2);
+        UniversalAdapter adapter = new UniversalAdapter(Arrays.asList(mBuilder1, mBuilder2));
 
         Object obj1 = new Model1();
         Object obj2 = new Model1();

@@ -1,6 +1,7 @@
 package ru.lliepmah;
 
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 
 import com.google.testing.compile.JavaFileObjects;
@@ -32,16 +33,13 @@ import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.ElementVisitor;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.Name;
-import javax.lang.model.element.NestingKind;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
-import javax.lang.model.type.TypeVisitor;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 
@@ -107,6 +105,100 @@ public class HolderBuilderProcessorTest {
 
     @RequiresApi(api = Build.VERSION_CODES.GINGERBREAD)
     @Test
+    public void init_withArguments() throws Exception {
+        for (int parameterCount = 0; parameterCount < 4; parameterCount++) {
+            testGeneratingParameters(parameterCount);
+        }
+    }
+
+    private void testGeneratingParameters(int parameterCount) throws IOException {
+        final String TEST_CLASS_NAME = "TestsParameterClass";
+        int layoutId = 3;
+
+        String[] parametersClasses = new String[parameterCount];
+
+        StringBuilder testClassParameters = new StringBuilder();
+        StringBuilder testParameters = new StringBuilder();
+        StringBuilder testParametersAssign = new StringBuilder();
+        StringBuilder testMembersDeclaration = new StringBuilder();
+
+        for (int i = 0; i < parameterCount; i++) {
+            String parameterClass = TEST_CLASS_NAME + i;
+            String parameterName = "p" + parameterClass;
+            String parameterMemberName = "m" + parameterClass;
+
+            parametersClasses[i] = parameterClass;
+
+            testClassParameters.append("public static class ");
+            testClassParameters.append(parameterClass);
+            testClassParameters.append("{}\n");
+
+            testParameters.append(", ");
+            testParameters.append(parameterClass);
+            testParameters.append(" ");
+            testParameters.append(parameterName);
+
+            testParametersAssign.append(parameterMemberName);
+            testParametersAssign.append("=");
+            testParametersAssign.append(parameterName);
+            testParametersAssign.append(";\n");
+
+            testMembersDeclaration.append("private final ");
+            testMembersDeclaration.append(parameterClass);
+            testMembersDeclaration.append(" ");
+            testMembersDeclaration.append(parameterMemberName);
+            testMembersDeclaration.append(";\n");
+        }
+
+        JavaFileObject fileObject = generateInputFile(layoutId, testClassParameters.toString(),
+                testParameters.toString(), testParametersAssign.toString(),
+                testMembersDeclaration.toString());
+
+        JavaFileObject defaultViewHolderFile = readFile(PATH_LIBRARY_SOURCES, "DefaultViewHolder");
+        JavaFileObject builderFile = readFile(PATH_LIBRARY_SOURCES, "Builder");
+
+        assertAbout(JavaSourcesSubjectFactory.javaSources())
+                .that(Arrays.asList(fileObject, defaultViewHolderFile, builderFile))
+                .processedWith(new HolderBuilderProcessor()).compilesWithoutError()
+                .and().generatesFileNamed(CLASS_OUTPUT, "ru.lliepmah.lib", "ObjectHolderBuilder.class")
+                .and().generatesSources(loadBuilderWithParametersSource("ObjectHolder", "ru.lliepmah.lib", layoutId, "Object", "java.lang",
+                parametersClasses));
+    }
+
+    @NonNull
+    private JavaFileObject generateInputFile(int layoutId, String testClassParameters,
+                                             String testParameters, String testParametersAssign,
+                                             String testMembersDeclaration) {
+
+        return JavaFileObjects.forSourceLines("ObjectHolder",
+                "package ru.lliepmah.lib;",
+                "",
+                "import java.lang.Object;",
+                "import android.view.View;",
+                "import ru.lliepmah.HolderBuilder;",
+                "",
+                "",
+                "@HolderBuilder(" + layoutId + ")",
+                "public class ObjectHolder extends DefaultViewHolder<Object> {",
+                "    ",
+                testMembersDeclaration,
+                "    ",
+                "    public ObjectHolder(View itemView" + testParameters + ") {",
+                "        super(itemView);",
+                testParametersAssign,
+                "    }",
+                "",
+                "    @Override",
+                "    public void bind(Object model) {}",
+                "    ",
+                testClassParameters,
+                "}"
+        );
+    }
+
+
+    @RequiresApi(api = Build.VERSION_CODES.GINGERBREAD)
+    @Test
     public void init() throws Exception {
 
 
@@ -141,16 +233,87 @@ public class HolderBuilderProcessorTest {
                 .and().generatesFileNamed(CLASS_OUTPUT, "ru.lliepmah.lib", "ObjectHolderBuilder.class")
                 .and().generatesSources(loadBuilderSource("ObjectHolder", "ru.lliepmah.lib", 1, "Object", "java.lang"));
 
-
-//                .generatesFileNamed(CLASS_OUTPUT, "com.lliepmah", "ObjectHolderBuilder");
-//                .withContents(ByteSource.wrap("Bogus".getBytes(UTF_8)));
-
-//        assertAbout(javaSource())
-//                .that(JavaFileObjects.forResource(Resources.getResource("ModelHolderWithListener.java")))
-//                .compilesWithoutError();
-
     }
 
+
+    private JavaFileObject loadBuilderWithParametersSource(final String className, String packageName, int layoutId, String modelClass, String modelPackage, String[] parametersClasses) {
+
+        StringBuilder patametersDeclaration = new StringBuilder();
+        StringBuilder patametersSending = new StringBuilder();
+        StringBuilder testParametersAssign = new StringBuilder();
+        StringBuilder argumens = new StringBuilder();
+        String argsList = "";
+
+        for (String parameterClass : parametersClasses) {
+            String parameterName = "p" + parameterClass;
+            String parameterMemberName = "_" + parameterName;
+
+            patametersDeclaration.append("ObjectHolder.");
+            patametersDeclaration.append(parameterClass);
+            patametersDeclaration.append(" ");
+            patametersDeclaration.append(parameterMemberName);
+            patametersDeclaration.append(";\n");
+
+            patametersSending.append(", ");
+            patametersSending.append(parameterMemberName);
+
+            testParametersAssign.append("this.");
+            testParametersAssign.append(parameterMemberName);
+            testParametersAssign.append("=");
+            testParametersAssign.append(parameterName);
+            testParametersAssign.append(";\n");
+
+            argumens.append("ObjectHolder.");
+            argumens.append(parameterClass);
+            argumens.append(" ");
+            argumens.append(parameterName);
+            argumens.append(",");
+        }
+
+        if (argumens.length() > 1) {
+            argsList = argumens.substring(0, argumens.length() - 1);
+        }
+        return JavaFileObjects.forSourceLines(className,
+
+                "package ru.lliepmah.lib;",
+
+                "import android.view.LayoutInflater;",
+                "import android.view.View;",
+                "import android.view.ViewGroup;",
+                "import java.lang.Class;",
+                "import " + modelPackage + "." + modelClass + ";",
+                "import java.lang.Override;",
+
+                "public final class " + className + "Builder extends Builder<" + modelClass + "> {",
+                "    public static final int HOLDER_ID = " + 1 + ";",
+                "    public static final Class<" + modelClass + "> MODEL_CLASS = " + modelClass + ".class;",
+
+                patametersDeclaration.toString(),
+
+                "",
+                "    public " + className + "Builder(" + argsList + ") {",
+                testParametersAssign.toString(),
+
+                "    }",
+                "    @Override",
+                "    public int getId() {",
+                "        return HOLDER_ID;",
+                "    }",
+
+                "    @Override",
+                "    public Class<" + modelClass + "> getHolderClass() {",
+                "        return MODEL_CLASS;",
+                "    }",
+
+                "    @Override",
+                "    public DefaultViewHolder<" + modelClass + "> build(ViewGroup parent) {",
+                "        View view = LayoutInflater.from(parent.getContext()).inflate(" + layoutId + ", parent, false);",
+                "        return new " + packageName + "." + className + "(view" + patametersSending + ");",
+                "    }",
+
+                "}");
+
+    }
 
     private JavaFileObject loadBuilderSource(final String className, String packageName, int layoutId, String modelClass, String modelPackage) {
 
@@ -222,91 +385,6 @@ public class HolderBuilderProcessorTest {
     @Test
     public void process() throws Exception {
 
-    }
-
-    @Test
-    public void generatedClassName_withoutPackage() throws Exception {
-        final String TEST = "_test_";
-        Name name = Mockito.mock(Name.class);
-        when(name.toString()).thenReturn(TEST);
-
-        PackageElement pkgElement = mock(PackageElement.class);
-        when(pkgElement.getQualifiedName()).thenReturn(name);
-
-        TypeElement element = mock(TypeElement.class);
-        when(element.getSimpleName()).thenReturn(name);
-        when(element.getEnclosingElement()).thenReturn(pkgElement);
-
-        TypeElement type = Mockito.mock(TypeElement.class);
-        when(type.getSimpleName()).thenReturn(name);
-        when(type.getEnclosingElement()).thenReturn(element);
-
-        final Method method = HolderBuilderProcessor.class.getDeclaredMethod("generatedSubclassName", TypeElement.class, Integer.TYPE);
-        method.setAccessible(true);
-
-        assertThat((String) method.invoke(mProcessor, type, 0), is(TEST + "." + TEST + "." + TEST + "Builder"));
-        assertThat((String) method.invoke(mProcessor, type, 1), is(TEST + "." + TEST + "." + TEST + "$Builder"));
-        assertThat((String) method.invoke(mProcessor, type, 2), is(TEST + "." + TEST + "." + TEST + "$$Builder"));
-    }
-
-    @Test
-    public void generatedClassName() throws Exception {
-        final String TEST = "_test_";
-
-        Name name = Mockito.mock(Name.class);
-        when(name.toString()).thenReturn(TEST);
-
-        PackageElement element = mock(PackageElement.class);
-        when(element.getQualifiedName()).thenReturn(name);
-
-        TypeElement type = Mockito.mock(TypeElement.class);
-        when(type.getSimpleName()).thenReturn(name);
-        when(type.getEnclosingElement()).thenReturn(element);
-
-        final Method method = HolderBuilderProcessor.class.getDeclaredMethod("generatedSubclassName", TypeElement.class, Integer.TYPE);
-        method.setAccessible(true);
-
-        assertThat((String) method.invoke(mProcessor, type, 0), is(TEST + "." + TEST + "Builder"));
-        assertThat((String) method.invoke(mProcessor, type, 1), is(TEST + "." + TEST + "$Builder"));
-        assertThat((String) method.invoke(mProcessor, type, 2), is(TEST + "." + TEST + "$$Builder"));
-    }
-
-
-    @Test
-    public void checkTypeElement_unexpectedSuperclassOfType() throws Exception {
-        expectErrorType(ErrorType.UNEXPECTED_SUPERCLASS_OF_TYPE);
-
-        final String TEST = "_test_";
-        Name name = Mockito.mock(Name.class);
-        when(name.toString()).thenReturn(TEST);
-
-        PackageElement packageElement= mock(PackageElement.class);
-        when(packageElement.getKind()).thenReturn(ElementKind.PACKAGE);
-        when(packageElement.getSimpleName()).thenReturn(name);
-        when(packageElement.getQualifiedName()).thenReturn(name);
-
-        TypeElement superClassTypeElement = mock(TypeElement.class);
-        when(superClassTypeElement.getKind()).thenReturn(ElementKind.CLASS);
-        when(superClassTypeElement.getNestingKind()).thenReturn(NestingKind.TOP_LEVEL);
-        when(superClassTypeElement.getEnclosingElement()).thenReturn(packageElement);
-        when(superClassTypeElement.getSimpleName()).thenReturn(name);
-
-        Element superClassElement = mock(Element.class);
-        when(superClassElement.accept(any(ElementVisitor.class),any(Object.class))).thenReturn(superClassTypeElement);
-
-
-        TypeMirror superClass = mock(TypeMirror.class);
-        when(superClass.accept(any(TypeVisitor.class), any(Object.class))).thenReturn(superClassElement);
-
-        TypeElement type = Mockito.mock(TypeElement.class);
-        when(type.getKind()).thenReturn(ElementKind.CLASS);
-        when(type.getSuperclass()).thenReturn(superClass);
-
-        HolderBuilder holderBuilderAnnotation = Mockito.mock(HolderBuilder.class);
-
-        final Method method = HolderBuilderProcessor.class.getDeclaredMethod("checkTypeElement", TypeElement.class, HolderBuilder.class);
-        method.setAccessible(true);
-        method.invoke(mProcessor, type, holderBuilderAnnotation);
     }
 
     @Test
