@@ -29,7 +29,7 @@ cache:
 #    - ./gradlew clean checkstyle
 
 script:
-    - ./gradlew test coveralls --stacktrace
+    - ./gradlew test coveralls --debug
 
 notifications:
   email: false
