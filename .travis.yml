@@ -29,9 +29,9 @@ cache:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
 
-#env:
-#  global:
-#    - COVERALLS_REPO_TOKEN=qqeJnWXRN3vRFgg5qKPiRO5jEqc3DOcSm
+env:
+  global:
+    - COVERALLS_REPO_TOKEN=qqeJnWXRN3vRFgg5qKPiRO5jEqc3DOcSm
 
 #before_script:
 #    - ./gradlew clean checkstyle

@@ -1,70 +1,67 @@
 apply plugin: 'com.android.library'
-//apply plugin: 'jacoco'
+apply plugin: 'jacoco'
 
 android {
-    compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
+  compileSdkVersion rootProject.ext.compileSdkVersion
+  buildToolsVersion rootProject.ext.buildToolsVersion
 
-    defaultConfig {
-        minSdkVersion rootProject.ext.minSdkVersion
-        targetSdkVersion rootProject.ext.targetSdkVersion
+  defaultConfig {
+    minSdkVersion rootProject.ext.minSdkVersion
+    targetSdkVersion rootProject.ext.targetSdkVersion
 
-        versionCode rootProject.ext.libraryVersionCode
-        versionName rootProject.ext.libraryVersion
+    versionCode rootProject.ext.libraryVersionCode
+    versionName rootProject.ext.libraryVersion
 
-        vectorDrawables.useSupportLibrary = true
+    vectorDrawables.useSupportLibrary = true
 
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
-    }
-    buildTypes {
-        debug {
-            testCoverageEnabled false
-        }
-
-        release {
-            testCoverageEnabled false
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
+    testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+  }
+  buildTypes {
+    debug {
+      testCoverageEnabled false
     }
 
-//    testOptions {
-//        unitTests {
-//            all {
-//                jvmArgs '-noverify'
-//                jacoco {
-//                    includeNoLocationClasses = true
-//                }
-//            }
-//
-//        }
-//    }
+    release {
+      testCoverageEnabled false
+      minifyEnabled false
+      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+    }
+  }
+
+  testOptions {
+    unitTests {
+      all {
+        jvmArgs '-noverify'
+        jacoco {
+          includeNoLocationClasses = true
+        }
+      }
+    }
+  }
 }
 
 dependencies {
-    compile project(':annotations')
+  compile project(':annotations')
 
-    compile deps.supportAnnotations
-    compile deps.recyclerView
+  compile deps.supportAnnotations
+  compile deps.recyclerView
 
-    testCompile deps.powermockMockito
-    testCompile deps.powermockJunit4
+  testCompile deps.powermockMockito
+  testCompile deps.powermockJunit4
 
-    testCompile(deps.junit) {
-        exclude group: 'org.hamcrest'
-    }
-    testCompile(deps.mockito) {
-        exclude group: 'org.hamcrest'
-    }
-    testCompile deps.android
+  testCompile(deps.junit) {
+    exclude group: 'org.hamcrest'
+  }
+  testCompile(deps.mockito) {
+    exclude group: 'org.hamcrest'
+  }
+  testCompile deps.android
 
-    testCompile deps.hamcrest
-    testCompile deps.robolectric
+  testCompile deps.hamcrest
+  testCompile deps.robolectric
 
-    testCompile deps.truth
-    testCompile deps.junit
-
+  testCompile deps.truth
+  testCompile deps.junit
 }
 
 apply from: 'bintray.gradle'
