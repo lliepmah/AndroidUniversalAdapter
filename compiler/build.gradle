@@ -4,49 +4,49 @@ import org.gradle.internal.jvm.Jvm
 
 apply plugin: 'java'
 apply plugin: 'checkstyle'
-apply plugin: 'jacoco'
+//apply plugin: 'jacoco'
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
 configurations {
-    provided
-    compile.extendsFrom provided
+  provided
+  compile.extendsFrom provided
 }
 
 def logger = new LoggerWrapper(project.logger)
 def sdkHandler = new SdkHandler(project, logger)
 for (File file : sdkHandler.sdkLoader.repositories) {
-    repositories.maven {
-        url = file.toURI()
-    }
+  repositories.maven {
+    url = file.toURI()
+  }
 }
 
 jar {
-    baseName = 'compiler'
+  baseName = 'universal-adapter-compiler'
 }
 
 dependencies {
-    compile project(':annotations')
-    compile deps.autoservice
-    compile deps.autocommon
-    compile deps.javapoet
+  compile project(':annotations')
+  compile deps.autoservice
+  compile deps.autocommon
+  compile deps.javapoet
 
-    compileOnly deps.android
-    compileOnly files(Jvm.current().getToolsJar())
+  compileOnly deps.android
+  compileOnly files(Jvm.current().getToolsJar())
 
-    testCompile deps.android
-    testCompile deps.junit
-    testCompile deps.truth
-    testCompile deps.compiletesting
+  testCompile deps.android
+  testCompile deps.junit
+  testCompile deps.truth
+  testCompile deps.compiletesting
 
-    testCompile deps.powermockMockito
-    testCompile deps.powermockJunit4
-    testCompile deps.fishbowl
+  testCompile deps.powermockMockito
+  testCompile deps.powermockJunit4
+  testCompile deps.fishbowl
 
-    testCompile files(Jvm.current().getToolsJar())
+  testCompile files(Jvm.current().getToolsJar())
 
-    compileOnly project(path: ':library')
+  compileOnly project(path: ':library')
 }
 
 apply from: 'bintray.gradle'

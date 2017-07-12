@@ -6,8 +6,7 @@ buildscript {
     dependencies {
         classpath 'com.eriwen:gradle-cobertura-plugin:1.1.1'
 
-        classpath 'com.android.tools.build:gradle:2.2.3'
-        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
+        classpath 'com.android.tools.build:gradle:2.3.3'
         classpath 'gradle.plugin.com.kageiit:lintrules:1.1.2'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
         classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.7.1'
@@ -22,7 +21,6 @@ repositories {
 apply plugin: 'checkstyle'
 apply plugin: 'com.github.ben-manes.versions'
 
-apply plugin: 'jacoco'
 apply plugin: 'cobertura'
 apply plugin: 'com.github.kt3k.coveralls'
 
@@ -46,28 +44,28 @@ task checkstyle(type: Checkstyle) {
 }
 
 ext {
-    jcenterGroup = 'universal-adapter'
+    jcenterGroup = 'com.github.lliepmah'
     gitHubUrl = 'https://github.com/lliepmah/AndroidUniversalAdapter'
 
-    libraryVersionCode = (System.getenv('TRAVIS_BUILD_NUMBER') ?: 3).toInteger()
+    libraryVersionCode = (System.getenv('TRAVIS_BUILD_NUMBER') ?: 2).toInteger()
 
     println "libraryVersionCode=$libraryVersionCode"
 
     majorVersion = 0
-    minorVersion = 0
+    minorVersion = 1
     libraryVersion = "$majorVersion.$minorVersion.$libraryVersionCode"
 
     minSdkVersion = 15
-    targetSdkVersion = 25
-    compileSdkVersion = 25
+    targetSdkVersion = 26
+    compileSdkVersion = 26
 
-    buildToolsVersion = '25.0.1'
+    buildToolsVersion = '26.0.0'
     sourceCompatibilityVersion = JavaVersion.VERSION_1_6
     targetCompatibilityVersion = JavaVersion.VERSION_1_6
 }
 
-def androidToolsVersion = '25.1.2'
-def supportLibraryVersion = '25.1.0'
+def androidToolsVersion = '25.3.1'
+def supportLibraryVersion = '25.3.1'
 
 ext.deps = [
         /* Android */
@@ -91,13 +89,13 @@ ext.deps = [
         lintTests          : "com.android.tools.lint:lint-tests:$androidToolsVersion",
 
         /* Java */
-        javapoet           : 'com.squareup:javapoet:1.8.0',
-        javaparser         : 'com.github.javaparser:javaparser-core:2.5.1',
+        javapoet           : 'com.squareup:javapoet:1.9.0',
+        javaparser         : 'com.github.javaparser:javaparser-core:3.2.8',
 
         /* Test dependencies */
         junit              : 'junit:junit:4.12',
-        truth              : 'com.google.truth:truth:0.30',
-        robolectric        : 'org.robolectric:robolectric:3.1.4',
+        truth              : 'com.google.truth:truth:0.34',
+        robolectric        : 'org.robolectric:robolectric:3.4-rc2',
         openglApi          : 'org.khronos:opengl-api:gl1.1-android-2.1_r1',
         compiletesting     : 'com.google.testing.compile:compile-testing:0.10',
         autoservice        : 'com.google.auto.service:auto-service:1.0-rc2',
@@ -122,58 +120,57 @@ def testableProjectsNames = [':compiler', ':library']
 def Set<Project> publishedProjects = subprojects.findAll() {
     testableProjectsNames.contains(it.path)
 }
+//task jacocoRootReport(type: JacocoReport, group: 'Coverage reports') {
+//
+//    group = 'Reporting'
+//    description = 'Generates an aggregate report from all subprojects'
+//
+//    sourceDirectories = files(
+//            publishedProjects.projectDir.collect {
+//                file(it.path + "/src/main/java")
+//            })
+//
+//    executionData = files(
+//            publishedProjects.buildDir.collect {
+//                fileTree(dir: "$it/jacoco/", includes: ['**/*.exec', '**/*.ec'])
+//            })
+//
+//    classDirectories = files(publishedProjects.buildDir.collect {
+//        fileTree(
+//                dir: it,
+//                includes: [
+//                        '**/classes/main/**/*.class',
+//                        '**/classes/debug/**/*.class'
+//                ],
+//                excludes: [
+//                        '**/R.class',
+//                        '**/R$*.class',
+//                        '**/BuildConfig.*',
+//                        '**/Manifest*.*',
+//                        '**/*Test*.*',
+//                        '**/*Assert*.*',
+//                        '**/*Exception*.*',
+//                ]
+//        )
+//    })
+//
+//    reports {
+//        html.enabled = true // human readable
+//        xml.enabled = true // required by coveralls
+//    }
+//}
 
-task jacocoRootReport(type: JacocoReport, group: 'Coverage reports') {
+//coveralls {
+//    sourceDirs = publishedProjects.projectDir.collect {
+//        file(it.path + "/src/main/java")
+//    }
+//    jacocoReportPath = "${buildDir}/reports/jacoco/jacocoRootReport/jacocoRootReport.xml"
+//}
 
-    group = 'Reporting'
-    description = 'Generates an aggregate report from all subprojects'
+//tasks.coveralls {
+//    dependsOn jacocoRootReport
+//}
 
-    sourceDirectories = files(
-            publishedProjects.projectDir.collect {
-                file(it.path + "/src/main/java")
-            })
-
-    executionData = files(
-            publishedProjects.buildDir.collect {
-                fileTree(dir: "$it/jacoco/", includes: ['**/*.exec', '**/*.ec'])
-            })
-
-    classDirectories = files(publishedProjects.buildDir.collect {
-        fileTree(
-                dir: it,
-                includes: [
-                        '**/classes/main/**/*.class',
-                        '**/classes/debug/**/*.class'
-                ],
-                excludes: [
-                        '**/R.class',
-                        '**/R$*.class',
-                        '**/BuildConfig.*',
-                        '**/Manifest*.*',
-                        '**/*Test*.*',
-                        '**/*Assert*.*',
-                        '**/*Exception*.*',
-                ]
-        )
-    })
-
-    reports {
-        html.enabled = true // human readable
-        xml.enabled = true // required by coveralls
-    }
-}
-
-coveralls {
-    sourceDirs = publishedProjects.projectDir.collect {
-        file(it.path + "/src/main/java")
-    }
-    jacocoReportPath = "${buildDir}/reports/jacoco/jacocoRootReport/jacocoRootReport.xml"
-}
-
-tasks.coveralls {
-    dependsOn jacocoRootReport
-}
-
-task clean(type: Delete) {
-    delete rootProject.buildDir
-}
+//task clean(type: Delete) {
+//    delete rootProject.buildDir
+//}

@@ -1,5 +1,5 @@
 apply plugin: 'com.android.library'
-apply plugin: 'jacoco'
+//apply plugin: 'jacoco'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -19,27 +19,27 @@ android {
     }
     buildTypes {
         debug {
-            testCoverageEnabled true
+            testCoverageEnabled false
         }
 
         release {
-            testCoverageEnabled true
+            testCoverageEnabled false
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
 
-    testOptions {
-        unitTests {
-            all {
-                jvmArgs '-noverify'
-                jacoco {
-                    includeNoLocationClasses = true
-                }
-            }
-
-        }
-    }
+//    testOptions {
+//        unitTests {
+//            all {
+//                jvmArgs '-noverify'
+//                jacoco {
+//                    includeNoLocationClasses = true
+//                }
+//            }
+//
+//        }
+//    }
 }
 
 dependencies {

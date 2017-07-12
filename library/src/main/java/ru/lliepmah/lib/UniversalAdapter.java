@@ -127,10 +127,13 @@ public class UniversalAdapter extends RecyclerView.Adapter<DefaultViewHolder> {
         return mItems.get(position).getModel();
     }
 
+    // TODO: 10.01.17 Maybe optimize that?
     public void addAll(List items) {
         if (items != null && items.size() > 0) {
-            int builderId = findBuilderId(items.get(0));
-            addAll(items, builderId);
+            for (Object item : items) {
+                int builderId = findBuilderId(item);
+                add(item, builderId);
+            }
         }
     }
 

@@ -24,3 +24,4 @@ dependencies {
     compileOnly deps.android
     compile deps.supportAnnotations
 }
+apply from: 'bintray.gradle'
