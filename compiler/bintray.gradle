@@ -66,8 +66,8 @@ bintray {
     publications = ['mavenJava']
     publish = true
     pkg {
-        repo = 'universal-adapter'
-        name = 'compiler'
+        repo = 'com.github.lliepmah'
+        name = 'universal-adapter-compiler'
         userOrg = user
         licenses = ['Apache-2.0']
         version {

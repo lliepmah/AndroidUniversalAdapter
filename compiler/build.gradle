@@ -4,7 +4,7 @@ import org.gradle.internal.jvm.Jvm
 
 apply plugin: 'java'
 apply plugin: 'checkstyle'
-apply plugin: 'jacoco'
+//apply plugin: 'jacoco'
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8

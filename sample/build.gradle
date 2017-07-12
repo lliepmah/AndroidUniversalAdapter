@@ -1,5 +1,4 @@
 apply plugin: 'com.android.application'
-apply plugin: 'com.neenbedankt.android-apt'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -25,10 +24,10 @@ android {
 dependencies {
     provided project(':annotations')
     compile project(':library');
-    apt project(':compiler')
+    annotationProcessor project(':compiler')
 
     compile deps.butterknife
-    apt deps.butterknifeCompiler
+    annotationProcessor deps.butterknifeCompiler
 
     compile deps.cardview
     compile deps.supportCompat

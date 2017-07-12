@@ -117,7 +117,27 @@ public class UniversalAdapterTest {
 
         assertTrue(adapter.add(obj3));
         assertEquals(3, adapter.getItemCount());
+    }
 
+    @Test
+    public void getItemCount_WithClass() throws Exception {
+        UniversalAdapter adapter = new UniversalAdapter(Arrays.asList(mBuilder1, mBuilder2));
+
+        Object obj1 = new Model1();
+        Object obj2 = new Model1();
+        Object obj3 = new Model2();
+
+        assertEquals(0, adapter.getItemCount(Model1.class));
+
+        assertTrue(adapter.add(obj1));
+        assertEquals(1, adapter.getItemCount(Model1.class));
+
+        assertTrue(adapter.add(obj2));
+        assertEquals(2, adapter.getItemCount(Model1.class));
+
+        assertTrue(adapter.add(obj3));
+        assertEquals(2, adapter.getItemCount(Model1.class));
+        assertEquals(1, adapter.getItemCount(Model2.class));
     }
 
     class Model1 { /* no-op */
