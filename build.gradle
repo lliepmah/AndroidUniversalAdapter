@@ -47,12 +47,12 @@ ext {
     jcenterGroup = 'com.github.lliepmah'
     gitHubUrl = 'https://github.com/lliepmah/AndroidUniversalAdapter'
 
-    libraryVersionCode = (System.getenv('TRAVIS_BUILD_NUMBER') ?: 6).toInteger()
+    libraryVersionCode = (System.getenv('TRAVIS_BUILD_NUMBER') ?: 2).toInteger()
 
     println "libraryVersionCode=$libraryVersionCode"
 
     majorVersion = 0
-    minorVersion = 0
+    minorVersion = 1
     libraryVersion = "$majorVersion.$minorVersion.$libraryVersionCode"
 
     minSdkVersion = 15

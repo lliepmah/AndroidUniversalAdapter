@@ -13,7 +13,7 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             pom { packaging 'jar' }
-            artifact file("build/libs/compiler-${libraryVersion}.jar")
+            artifact file("build/libs/universal-adapter-compiler-${libraryVersion}.jar")
             artifact sourcesJar
             pom.withXml {
                 Node root = asNode()
