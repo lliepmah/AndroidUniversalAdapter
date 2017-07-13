@@ -120,7 +120,7 @@ public class UniversalAdapter extends RecyclerView.Adapter<DefaultViewHolder> {
                 ErrorHandler.errorBuilderCannotHandleItem(builder, item);
             }
             mItems.add(index, ViewModelWrapper.build(item, builderId));
-        }
+        }/* TODO add else branch */
     }
 
     public Object getItem(int position) {

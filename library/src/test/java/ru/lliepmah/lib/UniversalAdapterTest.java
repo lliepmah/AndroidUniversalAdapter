@@ -39,8 +39,7 @@ public class UniversalAdapterTest {
     private Builder mBuilder1;
     private Builder mBuilder2;
 
-    @Before
-    public void setUp() throws Exception {
+    @Before public void setUp() throws Exception {
         DefaultViewHolder holder1 = mock(DefaultViewHolder.class);
         when(holder1.getItemViewType()).thenReturn(FIRST_VIEW_TYPE);
 
@@ -56,7 +55,47 @@ public class UniversalAdapterTest {
         when(mBuilder2.getHolderClass()).thenReturn(Model2.class);
         when(mBuilder2.getId()).thenReturn(SECOND_BUILDER_ID);
         when(mBuilder2.build(any(ViewGroup.class))).thenReturn(holder2);
+    }
 
+    //public void removeItems(int startIndex, int endIndex) {
+    //    for (int i = startIndex; i <= endIndex; i++) {
+    //        mItems.remove(startIndex);
+    //    }
+    //}
+
+
+    @Test
+    public void removeItems() throws Exception {
+        UniversalAdapter adapter = new UniversalAdapter(mBuilder1, mBuilder2);
+
+        Model1 one = new Model1();
+        Model2 four = new Model2();
+
+        List objects = Arrays.asList(one,
+            new Model2(),
+            new Model2(),
+            new Model1(), four,
+            new Model1(),
+            new Model1());
+
+        adapter.addAll(objects);
+
+        adapter.removeItems(0, 3);
+
+        assertEquals(adapter.getItemCount(), 3);
+        assertEquals(adapter.getItem(0), four);
+    }
+
+
+    @Test public void addNullObject() {
+        UniversalAdapter adapter = new UniversalAdapter(mBuilder1, mBuilder2);
+        adapter.add(0, null, FIRST_BUILDER_ID);
+        assertEquals(adapter.getItemCount(), 0);
+    }
+
+    @Test(expected = WrongItemException.class) public void addWrongBuilder() {
+        UniversalAdapter adapter = new UniversalAdapter(mBuilder1, mBuilder2);
+        adapter.add(0, new Model1(), SECOND_BUILDER_ID);
     }
 
     @Test
