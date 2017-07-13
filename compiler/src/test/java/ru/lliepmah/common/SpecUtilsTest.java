@@ -18,6 +18,7 @@ import org.junit.runners.JUnit4;
 
     try {
       Constructor<SpecUtils> constructor = SpecUtils.class.getDeclaredConstructor();
+      Assert.assertFalse(constructor.isAccessible());
       constructor.setAccessible(true);
       constructor.newInstance();
     } catch (InvocationTargetException exception) {
