@@ -10,7 +10,7 @@ jacocoTestReport {
       destination = "${project.buildDir}/reports/jacoco/test/jacocoTestReport.xml"
     }
   }
-  jacocoClasspath = project.configurations['androidJacocoAnt']
+//  jacocoClasspath = project.configurations['androidJacocoAnt']
   sourceDirectories = fileTree(dir: "${project.projectDir}/src/main/java")
   classDirectories = fileTree(dir: "${project.buildDir}/intermediates/classes/debug",
       excludes: ['**/BuildConfig.*',
