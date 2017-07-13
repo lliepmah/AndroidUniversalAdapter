@@ -11,9 +11,11 @@ import org.robolectric.annotation.Config;
 
 import java.util.Arrays;
 import java.util.List;
+import ru.lliepmah.lib.exceptions.WrongItemException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
@@ -29,25 +31,30 @@ import static org.mockito.Mockito.when;
 @Config(sdk = 21)
 public class UniversalAdapterTest {
 
+    public static final int FIRST_BUILDER_ID = 1;
+    public static final int SECOND_BUILDER_ID = 2;
+    public static final int FIRST_VIEW_TYPE = 1;
+    public static final int SECOND_VIEW_TYPE = 2;
+
     private Builder mBuilder1;
     private Builder mBuilder2;
 
     @Before
     public void setUp() throws Exception {
         DefaultViewHolder holder1 = mock(DefaultViewHolder.class);
-        when(holder1.getItemViewType()).thenReturn(1);
+        when(holder1.getItemViewType()).thenReturn(FIRST_VIEW_TYPE);
 
         DefaultViewHolder holder2 = mock(DefaultViewHolder.class);
-        when(holder2.getItemViewType()).thenReturn(2);
+        when(holder2.getItemViewType()).thenReturn(SECOND_VIEW_TYPE);
 
         mBuilder1 = mock(Builder.class);
         when(mBuilder1.getHolderClass()).thenReturn(Model1.class);
-        when(mBuilder1.getId()).thenReturn(1);
+        when(mBuilder1.getId()).thenReturn(FIRST_BUILDER_ID);
         when(mBuilder1.build(any(ViewGroup.class))).thenReturn(holder1);
 
         mBuilder2 = mock(Builder.class);
         when(mBuilder2.getHolderClass()).thenReturn(Model2.class);
-        when(mBuilder2.getId()).thenReturn(2);
+        when(mBuilder2.getId()).thenReturn(SECOND_BUILDER_ID);
         when(mBuilder2.build(any(ViewGroup.class))).thenReturn(holder2);
 
     }
@@ -73,6 +80,73 @@ public class UniversalAdapterTest {
             assertEquals(objects.indexOf(item), adapter.indexOf(item));
         }
 
+    }
+
+    @Test
+    public void getItemViewType() {
+        UniversalAdapter adapter = new UniversalAdapter(mBuilder1, mBuilder2);
+        List objects = Arrays.asList(
+            new Model1(),
+            new Model2(),
+            new Model2(),
+            new Model1(),
+            new Model2(),
+            new Model1(),
+            new Model1()
+        );
+        adapter.addAll(objects);
+        for (Object model : objects) {
+            int index = objects.indexOf(model);
+            Builder builder = model instanceof Model1 ? mBuilder1 : mBuilder2;
+            assertEquals(builder.getId(), adapter.getItemViewType(index));
+        }
+        assertNotEquals(mBuilder2.getId(), adapter.getItemViewType(3));
+    }
+
+    @Test
+    public void getItem() {
+        UniversalAdapter adapter = new UniversalAdapter(mBuilder1, mBuilder2);
+        List objects = Arrays.asList(
+            new Model1(),
+            new Model2(),
+            new Model2(),
+            new Model1(),
+            new Model2(),
+            new Model1(),
+            new Model1()
+        );
+
+        adapter.addAll(objects);
+        for (Object model : objects) {
+            int index = objects.indexOf(model);
+            assertEquals(model, adapter.getItem(index));
+        }
+    }
+
+    @Test(expected = WrongItemException.class)
+    public void addWrongItem() {
+        UniversalAdapter adapter = new UniversalAdapter(mBuilder1, mBuilder2);
+        adapter.add(0, new Model1(), SECOND_BUILDER_ID);
+    }
+
+    @Test(expected = WrongItemException.class)
+    public void addWrongBuilderId() {
+        UniversalAdapter adapter = new UniversalAdapter(mBuilder1);
+        adapter.add(0, new Model1(), SECOND_BUILDER_ID);
+    }
+
+    @Test
+    public void add() {
+        UniversalAdapter adapter = new UniversalAdapter(mBuilder2);
+        adapter.add(0, new Model2(), SECOND_BUILDER_ID);
+
+        assertEquals(adapter.getItemCount(), 1);
+    }
+
+    @Test(expected = WrongItemException.class)
+    public void addNoHolders() {
+        UniversalAdapter adapter = new UniversalAdapter();
+        adapter.add(new Model1());
     }
 
     @Test

@@ -178,7 +178,7 @@ public class UniversalAdapter extends RecyclerView.Adapter<DefaultViewHolder> {
     }
 
     public boolean clear() {
-        if (mItems == null || mItems.size() == 0) {
+        if (mItems.size() == 0) {
             return false;
         }
 
