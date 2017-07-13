@@ -1,21 +1,21 @@
 buildscript {
-  repositories {
-    jcenter()
-    maven { url "https://plugins.gradle.org/m2/" }
-  }
-  dependencies {
-    classpath 'com.eriwen:gradle-cobertura-plugin:1.1.1'
+    repositories {
+        jcenter()
+        maven { url "https://plugins.gradle.org/m2/" }
+    }
+    dependencies {
+        classpath 'com.eriwen:gradle-cobertura-plugin:1.1.1'
 
-    classpath 'com.android.tools.build:gradle:2.3.3'
-    classpath 'gradle.plugin.com.kageiit:lintrules:1.1.2'
-    classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
-    classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.7.1'
-    classpath "com.github.ben-manes:gradle-versions-plugin:0.13.0"
-  }
+        classpath 'com.android.tools.build:gradle:2.3.3'
+        classpath 'gradle.plugin.com.kageiit:lintrules:1.1.2'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+        classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.7.1'
+        classpath "com.github.ben-manes:gradle-versions-plugin:0.13.0"
+    }
 }
 
 repositories {
-  jcenter()
+    jcenter()
 }
 
 apply plugin: 'checkstyle'
@@ -25,145 +25,153 @@ apply plugin: 'cobertura'
 apply plugin: 'com.github.kt3k.coveralls'
 
 cobertura {
-  format = 'html'
-  includes = ['**/*.java', '**/*.groovy']
-  excludes = ['com/thirdparty/**/*.*']
+    format = 'html'
+    includes = ['**/*.java', '**/*.groovy']
+    excludes = ['com/thirdparty/**/*.*']
 }
 
 checkstyle {
-  toolVersion = '6.14.1'
+    toolVersion = '6.14.1'
 }
 
 task checkstyle(type: Checkstyle) {
-  configFile rootProject.file('checkstyle.xml')
-  source fileTree({ 'library/src/main/java'; 'compiler/src/main/java' })
-  ignoreFailures false
-  showViolations true
-  include '**/*.java'
-  classpath = files()
+    configFile rootProject.file('checkstyle.xml')
+    source fileTree({ 'library/src/main/java'; 'compiler/src/main/java' })
+    ignoreFailures false
+    showViolations true
+    include '**/*.java'
+    classpath = files()
 }
 
 ext {
-  jcenterGroup = 'com.github.lliepmah'
-  gitHubUrl = 'https://github.com/lliepmah/AndroidUniversalAdapter'
+    jcenterGroup = 'com.github.lliepmah'
+    gitHubUrl = 'https://github.com/lliepmah/AndroidUniversalAdapter'
 
-  //    libraryVersionCode = (System.getenv('TRAVIS_BUILD_NUMBER') ?: 2).toInteger()
-  libraryVersionCode = 2
+//    libraryVersionCode = (System.getenv('TRAVIS_BUILD_NUMBER') ?: 2).toInteger()
+    libraryVersionCode = 2
 
-  println "libraryVersionCode=$libraryVersionCode"
+    println "libraryVersionCode=$libraryVersionCode"
 
-  majorVersion = 0
-  minorVersion = 1
-  libraryVersion = "$majorVersion.$minorVersion.$libraryVersionCode-SNAPSHOT"
+    majorVersion = 0
+    minorVersion = 1
+    libraryVersion = "$majorVersion.$minorVersion.$libraryVersionCode-SNAPSHOT"
 
-  minSdkVersion = 15
-  targetSdkVersion = 26
-  compileSdkVersion = 26
+    minSdkVersion = 15
+    targetSdkVersion = 26
+    compileSdkVersion = 26
 
-  buildToolsVersion = '26.0.0'
-  sourceCompatibilityVersion = JavaVersion.VERSION_1_6
-  targetCompatibilityVersion = JavaVersion.VERSION_1_6
+    buildToolsVersion = '26.0.0'
+    sourceCompatibilityVersion = JavaVersion.VERSION_1_6
+    targetCompatibilityVersion = JavaVersion.VERSION_1_6
 }
 
 def androidToolsVersion = '25.3.1'
 def supportLibraryVersion = '25.3.1'
 
-ext.deps = [/* Android */
-            android            : 'com.google.android:android:4.1.1.4',
+ext.deps = [
+        /* Android */
+        android            : 'com.google.android:android:4.1.1.4',
 
-            supportCompat      : "com.android.support:appcompat-v7:$supportLibraryVersion",
-            cardview           : "com.android.support:cardview-v7:$supportLibraryVersion",
-            supportAnnotations : "com.android.support:support-annotations:$supportLibraryVersion",
-            recyclerView       : "com.android.support:recyclerview-v7:$supportLibraryVersion",
+        supportCompat      : "com.android.support:appcompat-v7:$supportLibraryVersion",
+        cardview           : "com.android.support:cardview-v7:$supportLibraryVersion",
+        supportAnnotations : "com.android.support:support-annotations:$supportLibraryVersion",
+        recyclerView       : "com.android.support:recyclerview-v7:$supportLibraryVersion",
 
-            supportTestRunner  : 'com.android.support.test:runner:0.5',
-            androidGradle      : 'com.android.tools.build:gradle:2.2.0',
+        supportTestRunner  : 'com.android.support.test:runner:0.5',
+        androidGradle      : 'com.android.tools.build:gradle:2.2.0',
 
-            butterknife        : "com.jakewharton:butterknife:8.4.0",
-            butterknifeCompiler: "com.jakewharton:butterknife-compiler:8.4.0",
+        butterknife        : "com.jakewharton:butterknife:8.4.0",
+        butterknifeCompiler: "com.jakewharton:butterknife-compiler:8.4.0",
 
-            /* Analysers */
-            lint               : "com.android.tools.lint:lint:$androidToolsVersion",
-            lintApi            : "com.android.tools.lint:lint-api:$androidToolsVersion",
-            lintChecks         : "com.android.tools.lint:lint-checks:$androidToolsVersion",
-            lintTests          : "com.android.tools.lint:lint-tests:$androidToolsVersion",
+        /* Analysers */
+        lint               : "com.android.tools.lint:lint:$androidToolsVersion",
+        lintApi            : "com.android.tools.lint:lint-api:$androidToolsVersion",
+        lintChecks         : "com.android.tools.lint:lint-checks:$androidToolsVersion",
+        lintTests          : "com.android.tools.lint:lint-tests:$androidToolsVersion",
 
-            /* Java */
-            javapoet           : 'com.squareup:javapoet:1.9.0',
-            javaparser         : 'com.github.javaparser:javaparser-core:3.2.8',
+        /* Java */
+        javapoet           : 'com.squareup:javapoet:1.9.0',
+        javaparser         : 'com.github.javaparser:javaparser-core:3.2.8',
 
-            /* Test dependencies */
-            junit              : 'junit:junit:4.12',
-            truth              : 'com.google.truth:truth:0.34',
-            robolectric        : 'org.robolectric:robolectric:3.4-rc2',
-            openglApi          : 'org.khronos:opengl-api:gl1.1-android-2.1_r1',
-            compiletesting     : 'com.google.testing.compile:compile-testing:0.11',
-            autoservice        : 'com.google.auto.service:auto-service:1.0-rc3',
-            autocommon         : 'com.google.auto:auto-common:0.8',
-            hamcrest           : 'org.hamcrest:java-hamcrest:2.0.0.0',
-            mockito            : 'org.mockito:mockito-all:1.10.19',
-            espressoCore       : 'com.android.support.test.espresso:espresso-core:2.2.2',
-            fishbowl           : 'com.github.stefanbirkner:fishbowl:1.4.0',
+        /* Test dependencies */
+        junit              : 'junit:junit:4.12',
+        truth              : 'com.google.truth:truth:0.34',
+        robolectric        : 'org.robolectric:robolectric:3.4-rc2',
+        openglApi          : 'org.khronos:opengl-api:gl1.1-android-2.1_r1',
+        compiletesting     : 'com.google.testing.compile:compile-testing:0.11',
+        autoservice        : 'com.google.auto.service:auto-service:1.0-rc3',
+        autocommon         : 'com.google.auto:auto-common:0.8',
+        hamcrest           : 'org.hamcrest:java-hamcrest:2.0.0.0',
+        mockito            : 'org.mockito:mockito-all:1.10.19',
+        espressoCore       : 'com.android.support.test.espresso:espresso-core:2.2.2',
+        fishbowl           : 'com.github.stefanbirkner:fishbowl:1.4.0',
 
-            powermockMockito   : 'org.powermock:powermock-api-mockito:1.6.6',
-            powermockJunit4    : 'org.powermock:powermock-module-junit4:1.6.6',]
+        powermockMockito   : 'org.powermock:powermock-api-mockito:1.6.6',
+        powermockJunit4    : 'org.powermock:powermock-module-junit4:1.6.6',
+]
 
 allprojects {
-  repositories {
-    jcenter()
-  }
+    repositories {
+        jcenter()
+    }
 }
 
 def testableProjectsNames = [':compiler', ':library']
 
 def Set<Project> publishedProjects = subprojects.findAll() {
-  testableProjectsNames.contains(it.path)
+    testableProjectsNames.contains(it.path)
 }
+//task jacocoRootReport(type: JacocoReport, group: 'Coverage reports') {
+//
+//    group = 'Reporting'
+//    description = 'Generates an aggregate report from all subprojects'
+//
+//    sourceDirectories = files(
+//            publishedProjects.projectDir.collect {
+//                file(it.path + "/src/main/java")
+//            })
+//
+//    executionData = files(
+//            publishedProjects.buildDir.collect {
+//                fileTree(dir: "$it/jacoco/", includes: ['**/*.exec', '**/*.ec'])
+//            })
+//
+//    classDirectories = files(publishedProjects.buildDir.collect {
+//        fileTree(
+//                dir: it,
+//                includes: [
+//                        '**/classes/main/**/*.class',
+//                        '**/classes/debug/**/*.class'
+//                ],
+//                excludes: [
+//                        '**/R.class',
+//                        '**/R$*.class',
+//                        '**/BuildConfig.*',
+//                        '**/Manifest*.*',
+//                        '**/*Test*.*',
+//                        '**/*Assert*.*',
+//                        '**/*Exception*.*',
+//                ]
+//        )
+//    })
+//
+//    reports {
+//        html.enabled = true // human readable
+//        xml.enabled = true // required by coveralls
+//    }
+//}
 
+//coveralls {
+//    sourceDirs = publishedProjects.projectDir.collect {
+//        file(it.path + "/src/main/java")
+//    }
+//    jacocoReportPath = "${buildDir}/reports/jacoco/jacocoRootReport/jacocoRootReport.xml"
+//}
 
-task jacocoRootReport(type: JacocoReport, group: 'Coverage reports') {
-
-  group = 'Reporting'
-  description = 'Generates an aggregate report from all subprojects'
-
-  sourceDirectories = files(publishedProjects.projectDir.collect {
-    file(it.path + "/src/main/java")
-  })
-
-  executionData = files(publishedProjects.buildDir.collect {
-    fileTree(dir: "$it/jacoco/", includes: ['**/*.exec', '**/*.ec'])
-  })
-
-  classDirectories = files(publishedProjects.buildDir.collect {
-    fileTree(dir: it,
-        includes: ['**/classes/main/**/*.class',
-                   '**/classes/debug/**/*.class'],
-        excludes: ['**/R.class',
-                   '**/R$*.class',
-                   '**/BuildConfig.*',
-                   '**/Manifest*.*',
-                   '**/*Test*.*',
-                   '**/*Assert*.*',
-                   '**/*Exception*.*',])
-  })
-
-  reports {
-    html.enabled = true // human readable
-    xml.enabled = true // required by coveralls
-  }
-}
-
-coveralls {
-  sourceDirs = publishedProjects.projectDir.collect {
-    file(it.path + "/src/main/java")
-  }
-  jacocoReportPath = "${buildDir}/reports/jacoco/jacocoRootReport/jacocoRootReport.xml"
-}
-
-tasks.coveralls {
-  dependsOn jacocoRootReport
-}
+//tasks.coveralls {
+//    dependsOn jacocoRootReport
+//}
 
 //task clean(type: Delete) {
-//  delete rootProject.buildDir
+//    delete rootProject.buildDir
 //}
