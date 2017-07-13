@@ -57,12 +57,12 @@ public class UniversalAdapterTest {
         when(mBuilder2.build(any(ViewGroup.class))).thenReturn(holder2);
     }
 
-    //public void removeItems(int startIndex, int endIndex) {
-    //    for (int i = startIndex; i <= endIndex; i++) {
-    //        mItems.remove(startIndex);
-    //    }
-    //}
-
+    @Test
+    public void addViewModelWrapper() {
+        UniversalAdapter adapter = new UniversalAdapter(mBuilder1, mBuilder2);
+        assertTrue(adapter.add(new ViewModelWrapper<>(new Model1(), FIRST_BUILDER_ID)));
+        assertFalse(adapter.add(null));
+    }
 
     @Test
     public void removeItems() throws Exception {
