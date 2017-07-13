@@ -7,6 +7,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 /**
  * @author Arthur Korchagin on 14.07.17.
  */
@@ -18,14 +21,14 @@ import org.junit.runners.JUnit4;
 
     try {
       Constructor<SpecUtils> constructor = SpecUtils.class.getDeclaredConstructor();
-      Assert.assertFalse(constructor.isAccessible());
+      assertFalse(constructor.isAccessible());
       constructor.setAccessible(true);
       constructor.newInstance();
     } catch (InvocationTargetException exception) {
       expectedException = exception.getCause();
     }
 
-    Assert.assertTrue(expectedException instanceof AssertionError);
+    assertTrue(expectedException instanceof AssertionError);
   }
 
 }

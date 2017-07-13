@@ -235,7 +235,7 @@ public final class HolderBuilderProcessor extends AbstractProcessor {
         }
 
         if (constructor == null) {
-            throw new RuntimeException();
+            throw new AssertionError();
         }
 
         return constructor;

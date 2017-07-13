@@ -4,13 +4,15 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Collections;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.mockito.Mockito;
 import ru.lliepmah.lib.Builder;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author Arthur Korchagin on 14.07.17.
@@ -22,7 +24,7 @@ import ru.lliepmah.lib.Builder;
 
   @Before public void setUp() throws Exception {
 
-    mBuilder = Mockito.mock(Builder.class);
+    mBuilder = mock(Builder.class);
   }
 
   @Test public void typeElementUtils() throws Exception {
@@ -30,7 +32,7 @@ import ru.lliepmah.lib.Builder;
 
     try {
       Constructor<ErrorHandler> constructor = ErrorHandler.class.getDeclaredConstructor();
-      Assert.assertFalse(constructor.isAccessible());
+      assertFalse(constructor.isAccessible());
 
       constructor.setAccessible(true);
       constructor.newInstance();
@@ -38,7 +40,7 @@ import ru.lliepmah.lib.Builder;
       expectedException = exception.getCause();
     }
 
-    Assert.assertTrue(expectedException instanceof AssertionError);
+    assertTrue(expectedException instanceof AssertionError);
   }
 
   @Test(expected = WrongItemException.class) public void errorBuilderCannotHandleItem()

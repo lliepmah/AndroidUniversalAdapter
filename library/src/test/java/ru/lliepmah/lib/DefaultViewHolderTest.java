@@ -11,7 +11,7 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-
+import static org.mockito.Mockito.mock;
 
 /**
  * Created by Arthur Korchagin on 22.12.16
@@ -27,7 +27,7 @@ public class DefaultViewHolderTest {
 
     @Before
     public void setUp() {
-        mItemView = Mockito.mock(View.class);
+        mItemView = mock(View.class);
 
         mDefaultViewHolder = new DefaultViewHolder<Object>(mItemView) {
             @Override

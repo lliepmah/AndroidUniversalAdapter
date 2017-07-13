@@ -45,6 +45,7 @@ import static javax.tools.StandardLocation.CLASS_OUTPUT;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -60,7 +61,6 @@ import static org.mockito.Mockito.when;
   public static final String PATH_LIBRARY_SOURCES = "../library/src/main/java/ru/lliepmah/lib";
 
   private HolderBuilderProcessor mProcessor;
-  private String mJavaSourceCode;
 
   private ProcessingEnvironment mProcessingEnvironment;
   private Messager mMessager;
@@ -68,23 +68,21 @@ import static org.mockito.Mockito.when;
   @Rule public ExpectedException thrown = ExpectedException.none();
 
   @Before public void setUp() throws Exception {
-    mProcessingEnvironment = Mockito.mock(ProcessingEnvironment.class);
-    mMessager = Mockito.mock(Messager.class);
+    mProcessingEnvironment = mock(ProcessingEnvironment.class);
+    mMessager = mock(Messager.class);
 
-    Mockito.when(mProcessingEnvironment.getMessager()).thenReturn(mMessager);
+    when(mProcessingEnvironment.getMessager()).thenReturn(mMessager);
     doNothing().when(mMessager)
         .printMessage(any(Diagnostic.Kind.class), any(CharSequence.class), any(Element.class));
 
     mProcessor = new HolderBuilderProcessor();
     mProcessor.init(mProcessingEnvironment);
-
-    mJavaSourceCode = null;
   }
 
   @Test public void getSupportedAnnotationTypes() throws Exception {
     Set<String> types = mProcessor.getSupportedAnnotationTypes();
 
-    TestCase.assertNotNull(types);
+    assertNotNull(types);
 
     assertThat(types.size(), is(1));
     assertThat(types.iterator().next(), is(HolderBuilder.class.getName()));
@@ -143,7 +141,7 @@ import static org.mockito.Mockito.when;
     JavaFileObject defaultViewHolderFile = readFile(PATH_LIBRARY_SOURCES, "DefaultViewHolder");
     JavaFileObject builderFile = readFile(PATH_LIBRARY_SOURCES, "Builder");
 
-    Truth.assertAbout(JavaSourcesSubjectFactory.javaSources()).that(
+    assertAbout(JavaSourcesSubjectFactory.javaSources()).that(
         Arrays.asList(fileObject, defaultViewHolderFile, builderFile))
         .processedWith(new HolderBuilderProcessor())
         .compilesWithoutError()
@@ -312,7 +310,6 @@ import static org.mockito.Mockito.when;
         sb.append(System.lineSeparator());
         line = br.readLine();
       }
-      String everything = sb.toString();
     } finally {
       br.close();
     }
@@ -330,7 +327,7 @@ import static org.mockito.Mockito.when;
 
   @Test public void checkTypeElement_classMustNotBeAbstract() throws Exception {
     expectErrorType(ErrorType.CLASS_MUST_NOT_BE_ABSTRACT);
-    TypeElement type = Mockito.mock(TypeElement.class);
+    TypeElement type = mock(TypeElement.class);
 
     Set<Modifier> modifiers = new HashSet<Modifier>() {{
       add(Modifier.ABSTRACT);
@@ -338,7 +335,7 @@ import static org.mockito.Mockito.when;
     when(type.getModifiers()).thenReturn(modifiers);
     when(type.getKind()).thenReturn(ElementKind.CLASS);
 
-    HolderBuilder holderBuilderAnnotation = Mockito.mock(HolderBuilder.class);
+    HolderBuilder holderBuilderAnnotation = mock(HolderBuilder.class);
 
     final Method method =
         HolderBuilderProcessor.class.getDeclaredMethod("checkTypeElement", TypeElement.class,
@@ -349,8 +346,8 @@ import static org.mockito.Mockito.when;
 
   @Test public void checkTypeElement_annotationOnlyForClasses() throws Exception {
     expectErrorType(ErrorType.ANNOTATION_ONLY_FOR_CLASSES);
-    TypeElement type = Mockito.mock(TypeElement.class);
-    HolderBuilder holderBuilderAnnotation = Mockito.mock(HolderBuilder.class);
+    TypeElement type = mock(TypeElement.class);
+    HolderBuilder holderBuilderAnnotation = mock(HolderBuilder.class);
 
     final Method method =
         HolderBuilderProcessor.class.getDeclaredMethod("checkTypeElement", TypeElement.class,
@@ -381,7 +378,7 @@ import static org.mockito.Mockito.when;
     ExecutableElement constructor2 = mock(ExecutableElement.class);
     when(constructor2.getKind()).thenReturn(ElementKind.CONSTRUCTOR);
 
-    TypeElement typeElement = Mockito.mock(TypeElement.class);
+    TypeElement typeElement = mock(TypeElement.class);
     Mockito.doReturn(Arrays.asList(constructor1, constructor2))
         .when(typeElement)
         .getEnclosedElements();
@@ -403,7 +400,7 @@ import static org.mockito.Mockito.when;
     ExecutableElement constructor2 = mock(ExecutableElement.class);
     when(constructor2.getKind()).thenReturn(ElementKind.CONSTRUCTOR);
 
-    TypeElement typeElement = Mockito.mock(TypeElement.class);
+    TypeElement typeElement = mock(TypeElement.class);
     Mockito.doReturn(Arrays.asList(constructor1, constructor2))
         .when(typeElement)
         .getEnclosedElements();
@@ -432,7 +429,7 @@ import static org.mockito.Mockito.when;
     ExecutableElement constructor2 = mock(ExecutableElement.class);
     when(constructor2.getKind()).thenReturn(ElementKind.CONSTRUCTOR);
 
-    TypeElement typeElement = Mockito.mock(TypeElement.class);
+    TypeElement typeElement = mock(TypeElement.class);
     Mockito.doReturn(Arrays.asList(constructor1, constructor2))
         .when(typeElement)
         .getEnclosedElements();
@@ -452,7 +449,7 @@ import static org.mockito.Mockito.when;
     when(constructor2.getKind()).thenReturn(ElementKind.CONSTRUCTOR);
     when(constructor2.getAnnotation(any(Class.class))).thenReturn(mock(Annotation.class));
 
-    TypeElement typeElement = Mockito.mock(TypeElement.class);
+    TypeElement typeElement = mock(TypeElement.class);
     Mockito.doReturn(Arrays.asList(constructor1, constructor2))
         .when(typeElement)
         .getEnclosedElements();

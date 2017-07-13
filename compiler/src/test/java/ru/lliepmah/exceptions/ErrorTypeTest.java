@@ -1,9 +1,11 @@
 package ru.lliepmah.exceptions;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Arthur Korchagin on 14.07.17.
@@ -16,10 +18,10 @@ import org.junit.runners.JUnit4;
 
   @Test public void valuesTest() {
     ErrorType[] values = ErrorType.values();
-    Assert.assertEquals(values.length, ERRORS_COUNT);
+    assertEquals(values.length, ERRORS_COUNT);
   }
 
   @Test public void valueOfTest() {
-    Assert.assertNotNull(ErrorType.valueOf("UNKNOWN"));
+    assertNotNull(ErrorType.valueOf("UNKNOWN"));
   }
 }
