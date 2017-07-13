@@ -31,7 +31,8 @@ cache:
 
 env:
   global:
-    - COVERALLS_REPO_TOKEN=qqeJnWXRN3vRFgg5qKPiRO5jEqc3DOcSm
+    - COVERALLS_SERVICE_NAME=travis-ci
+    - COVERALLS_REPO_TOKEN=bLYVehpEPA5w5wZsk29LL91uEKiMgn5ZP
 
 #before_script:
 #    - ./gradlew clean checkstyle
