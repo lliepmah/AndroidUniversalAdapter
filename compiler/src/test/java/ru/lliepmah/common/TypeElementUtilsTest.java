@@ -25,6 +25,7 @@ import org.mockito.Mockito;
 
     try {
       Constructor<TypeElementUtils> constructor = TypeElementUtils.class.getDeclaredConstructor();
+      Assert.assertFalse(constructor.isAccessible());
       constructor.setAccessible(true);
       constructor.newInstance();
     } catch (InvocationTargetException exception) {
