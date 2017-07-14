@@ -457,13 +457,6 @@ import ru.lliepmah.exceptions.ErrorType;
     invokePrivate("findConstructorParameters", mProcessor, TypeElement.class, typeElement);
   }
 
-  private void invokePrivate(String methodName, HolderBuilderProcessor object)
-      throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-    final Method method = HolderBuilderProcessor.class.getDeclaredMethod(methodName);
-    method.setAccessible(true);
-    method.invoke(object);
-  }
-
   private static <T> Object invokePrivate(String methodName, HolderBuilderProcessor object,
       Class<T> argumentsType, T... arguments)
       throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
