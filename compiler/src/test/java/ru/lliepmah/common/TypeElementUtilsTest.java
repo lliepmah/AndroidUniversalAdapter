@@ -14,10 +14,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.Mockito;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 /**
  * Created by Arthur Korchagin on 21.12.16
  */
@@ -42,27 +38,27 @@ import static org.mockito.Mockito.when;
   @Test public void packageNameOf() throws Exception {
     String NAME = "test.package";
 
-    Name packageName = mock(Name.class);
-    when(packageName.toString()).thenReturn(NAME);
+    Name packageName = Mockito.mock(Name.class);
+    Mockito.when(packageName.toString()).thenReturn(NAME);
 
-    PackageElement packageElement = mock(PackageElement.class);
-    when(packageElement.getQualifiedName()).thenReturn(packageName);
+    PackageElement packageElement = Mockito.mock(PackageElement.class);
+    Mockito.when(packageElement.getQualifiedName()).thenReturn(packageName);
 
-    Element element = mock(TypeElement.class);
-    when(element.getEnclosingElement()).thenReturn(packageElement);
+    Element element = Mockito.mock(TypeElement.class);
+    Mockito.when(element.getEnclosingElement()).thenReturn(packageElement);
 
-    TypeElement type = mock(TypeElement.class);
-    when(type.getEnclosingElement()).thenReturn(element);
+    TypeElement type = Mockito.mock(TypeElement.class);
+    Mockito.when(type.getEnclosingElement()).thenReturn(element);
 
-    assertThat(TypeElementUtils.packageNameOf(type), Is.is(NAME));
+    MatcherAssert.assertThat(TypeElementUtils.packageNameOf(type), Is.is(NAME));
   }
 
   @Test public void simpleNameOf() throws Exception {
     String NAME = "Test";
-    assertThat(TypeElementUtils.simpleNameOf("ru.test.test." + NAME), Is.is(NAME));
-    assertThat(TypeElementUtils.simpleNameOf("ru.test." + NAME), Is.is(NAME));
-    assertThat(TypeElementUtils.simpleNameOf(NAME), Is.is(NAME));
-    assertThat(TypeElementUtils.simpleNameOf(getClass().getName()),
+    MatcherAssert.assertThat(TypeElementUtils.simpleNameOf("ru.test.test." + NAME), Is.is(NAME));
+    MatcherAssert.assertThat(TypeElementUtils.simpleNameOf("ru.test." + NAME), Is.is(NAME));
+    MatcherAssert.assertThat(TypeElementUtils.simpleNameOf(NAME), Is.is(NAME));
+    MatcherAssert.assertThat(TypeElementUtils.simpleNameOf(getClass().getName()),
         Is.is(getClass().getSimpleName()));
   }
 }

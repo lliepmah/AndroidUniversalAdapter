@@ -2,14 +2,14 @@ package ru.lliepmah.lib;
 
 import android.view.View;
 
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
 
 /**
  * Created by Arthur Korchagin on 14.12.16
@@ -34,17 +34,17 @@ public class ViewModelWrapperTest {
 
     @Test
     public void build() throws Exception {
-        assertThat(ViewModelWrapper.build(mObj, BUILDER_ID), is(ViewModelWrapper.class));
+        MatcherAssert.assertThat(ViewModelWrapper.build(mObj, BUILDER_ID), Is.is(ViewModelWrapper.class));
     }
 
     @Test
     public void getModel() throws Exception {
-        assertThat(mViewModelWrapper.getModel(), is(mObj));
+        MatcherAssert.assertThat(mViewModelWrapper.getModel(), Is.is(mObj));
     }
 
     @Test
     public void getBuilderId() throws Exception {
-        assertThat(mViewModelWrapper.getBuilderId(), is(BUILDER_ID));
+        MatcherAssert.assertThat(mViewModelWrapper.getBuilderId(), Is.is(BUILDER_ID));
     }
 
 }

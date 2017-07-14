@@ -4,6 +4,7 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import com.google.common.base.Preconditions;
+import com.google.common.truth.Truth;
 import com.google.testing.compile.JavaFileObjects;
 import com.google.testing.compile.JavaSourcesSubjectFactory;
 import java.io.BufferedReader;
@@ -27,30 +28,22 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
+import javax.tools.StandardLocation;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.core.Is;
 import org.hamcrest.core.IsEqual;
+import org.hamcrest.core.IsNot;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.Matchers;
 import org.mockito.Mockito;
 import ru.lliepmah.exceptions.AbortProcessingException;
 import ru.lliepmah.exceptions.ErrorType;
-
-import static com.google.common.truth.Truth.assertAbout;
-import static javax.tools.StandardLocation.CLASS_OUTPUT;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNot.not;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Created by Arthur Korchagin on 14.12.16
@@ -58,43 +51,44 @@ import static org.mockito.Mockito.when;
 
 @RunWith(JUnit4.class) public class HolderBuilderProcessorTest {
 
-  public static final String PATH_LIBRARY_SOURCES = "../library/src/main/java/ru/lliepmah/lib";
+  private static final String PATH_LIBRARY_SOURCES = "../library/src/main/java/ru/lliepmah/lib";
+  private static final int ONE = 1;
+  private static final int TEST_PARAMS_COUNT = 4;
 
   private HolderBuilderProcessor mProcessor;
-
-  private ProcessingEnvironment mProcessingEnvironment;
-  private Messager mMessager;
 
   @Rule public ExpectedException thrown = ExpectedException.none();
 
   @Before public void setUp() throws Exception {
-    mProcessingEnvironment = mock(ProcessingEnvironment.class);
-    mMessager = mock(Messager.class);
+    ProcessingEnvironment processingEnvironment = Mockito.mock(ProcessingEnvironment.class);
+    Messager messager = Mockito.mock(Messager.class);
 
-    when(mProcessingEnvironment.getMessager()).thenReturn(mMessager);
-    doNothing().when(mMessager)
-        .printMessage(any(Diagnostic.Kind.class), any(CharSequence.class), any(Element.class));
+    Mockito.when(processingEnvironment.getMessager()).thenReturn(messager);
+    Mockito.doNothing()
+        .when(messager)
+        .printMessage(Matchers.any(Diagnostic.Kind.class), Matchers.any(CharSequence.class),
+            Matchers.any(Element.class));
 
     mProcessor = new HolderBuilderProcessor();
-    mProcessor.init(mProcessingEnvironment);
+    mProcessor.init(processingEnvironment);
   }
 
   @Test public void getSupportedAnnotationTypes() throws Exception {
     Set<String> types = mProcessor.getSupportedAnnotationTypes();
 
-    assertNotNull(types);
+    Assert.assertNotNull(types);
 
-    assertThat(types.size(), is(1));
-    assertThat(types.iterator().next(), is(HolderBuilder.class.getName()));
+    MatcherAssert.assertThat(types.size(), Is.is(ONE));
+    MatcherAssert.assertThat(types.iterator().next(), Is.is(HolderBuilder.class.getName()));
   }
 
   @RequiresApi(api = Build.VERSION_CODES.GINGERBREAD) @Test public void initWithArguments()
       throws Exception {
-    for (int parameterCount = 0; parameterCount < 4; parameterCount++) {
+    for (int parameterCount = 0; parameterCount < TEST_PARAMS_COUNT; parameterCount++) {
       testGeneratingParameters(parameterCount);
     }
 
-    assertTrue(true);
+    Assert.assertTrue(true);
   }
 
   private void testGeneratingParameters(int parameterCount) throws IOException {
@@ -143,12 +137,13 @@ import static org.mockito.Mockito.when;
     JavaFileObject defaultViewHolderFile = readFile(PATH_LIBRARY_SOURCES, "DefaultViewHolder");
     JavaFileObject builderFile = readFile(PATH_LIBRARY_SOURCES, "Builder");
 
-    assertAbout(JavaSourcesSubjectFactory.javaSources()).that(
-        Arrays.asList(fileObject, defaultViewHolderFile, builderFile))
+    Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
+        .that(Arrays.asList(fileObject, defaultViewHolderFile, builderFile))
         .processedWith(new HolderBuilderProcessor())
         .compilesWithoutError()
         .and()
-        .generatesFileNamed(CLASS_OUTPUT, "ru.lliepmah.lib", "ObjectHolderBuilder.class")
+        .generatesFileNamed(StandardLocation.CLASS_OUTPUT, "ru.lliepmah.lib",
+            "ObjectHolderBuilder.class")
         .and()
         .generatesSources(
             loadBuilderWithParametersSource("ObjectHolder", "ru.lliepmah.lib", layoutId, "Object",
@@ -182,14 +177,15 @@ import static org.mockito.Mockito.when;
 
     Preconditions.checkArgument(true);
 
-    assertAbout(JavaSourcesSubjectFactory.javaSources()).that(
-        Arrays.asList(fileObject, defaultViewHolderFile, builderFile))
+    Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
+        .that(Arrays.asList(fileObject, defaultViewHolderFile, builderFile))
 
         .processedWith(new HolderBuilderProcessor())
         .compilesWithoutError()
 
         .and()
-        .generatesFileNamed(CLASS_OUTPUT, "ru.lliepmah.lib", "ObjectHolderBuilder.class")
+        .generatesFileNamed(StandardLocation.CLASS_OUTPUT, "ru.lliepmah.lib",
+            "ObjectHolderBuilder.class")
         .and()
         .generatesSources(
             loadBuilderSource("ObjectHolder", "ru.lliepmah.lib", 1, "Object", "java.lang"));
@@ -325,15 +321,15 @@ import static org.mockito.Mockito.when;
 
   @Test public void checkTypeElementClassMustNotBeAbstract() throws Exception {
     expectErrorType(ErrorType.CLASS_MUST_NOT_BE_ABSTRACT);
-    TypeElement type = mock(TypeElement.class);
+    TypeElement type = Mockito.mock(TypeElement.class);
 
     Set<Modifier> modifiers = new HashSet<Modifier>() {{
       add(Modifier.ABSTRACT);
     }};
-    when(type.getModifiers()).thenReturn(modifiers);
-    when(type.getKind()).thenReturn(ElementKind.CLASS);
+    Mockito.when(type.getModifiers()).thenReturn(modifiers);
+    Mockito.when(type.getKind()).thenReturn(ElementKind.CLASS);
 
-    HolderBuilder holderBuilderAnnotation = mock(HolderBuilder.class);
+    HolderBuilder holderBuilderAnnotation = Mockito.mock(HolderBuilder.class);
 
     final Method method =
         HolderBuilderProcessor.class.getDeclaredMethod("checkTypeElement", TypeElement.class,
@@ -341,13 +337,13 @@ import static org.mockito.Mockito.when;
     method.setAccessible(true);
     method.invoke(mProcessor, type, holderBuilderAnnotation);
 
-    fail();
+    Assert.fail();
   }
 
   @Test public void checkTypeElementAnnotationOnlyForClasses() throws Exception {
     expectErrorType(ErrorType.ANNOTATION_ONLY_FOR_CLASSES);
-    TypeElement type = mock(TypeElement.class);
-    HolderBuilder holderBuilderAnnotation = mock(HolderBuilder.class);
+    TypeElement type = Mockito.mock(TypeElement.class);
+    HolderBuilder holderBuilderAnnotation = Mockito.mock(HolderBuilder.class);
 
     final Method method =
         HolderBuilderProcessor.class.getDeclaredMethod("checkTypeElement", TypeElement.class,
@@ -373,12 +369,12 @@ import static org.mockito.Mockito.when;
   @Test public void findConstructorParametersNoAnnotationInConstructors() throws Exception {
     expectErrorType(ErrorType.NO_ANNOTATION_IN_CONSTRUCTORS);
 
-    ExecutableElement constructor1 = mock(ExecutableElement.class);
-    when(constructor1.getKind()).thenReturn(ElementKind.CONSTRUCTOR);
-    ExecutableElement constructor2 = mock(ExecutableElement.class);
-    when(constructor2.getKind()).thenReturn(ElementKind.CONSTRUCTOR);
+    ExecutableElement constructor1 = Mockito.mock(ExecutableElement.class);
+    Mockito.when(constructor1.getKind()).thenReturn(ElementKind.CONSTRUCTOR);
+    ExecutableElement constructor2 = Mockito.mock(ExecutableElement.class);
+    Mockito.when(constructor2.getKind()).thenReturn(ElementKind.CONSTRUCTOR);
 
-    TypeElement typeElement = mock(TypeElement.class);
+    TypeElement typeElement = Mockito.mock(TypeElement.class);
     Mockito.doReturn(Arrays.asList(constructor1, constructor2))
         .when(typeElement)
         .getEnclosedElements();
@@ -390,17 +386,18 @@ import static org.mockito.Mockito.when;
       throws Exception {
     expectErrorType(ErrorType.UNEXPECTED_FIRST_PARAMETER_OF_CONSTRUCTOR);
 
-    ExecutableElement constructor1 = mock(ExecutableElement.class);
-    when(constructor1.getKind()).thenReturn(ElementKind.CONSTRUCTOR);
-    when(constructor1.getAnnotation(any(Class.class))).thenReturn(mock(Annotation.class));
-    VariableElement firstParameter = mock(VariableElement.class);
-    when(firstParameter.asType()).thenReturn(mock(TypeMirror.class));
-    doReturn(Arrays.asList(firstParameter)).when(constructor1).getParameters();
+    ExecutableElement constructor1 = Mockito.mock(ExecutableElement.class);
+    Mockito.when(constructor1.getKind()).thenReturn(ElementKind.CONSTRUCTOR);
+    Mockito.when(constructor1.getAnnotation(Matchers.any(Class.class)))
+        .thenReturn(Mockito.mock(Annotation.class));
+    VariableElement firstParameter = Mockito.mock(VariableElement.class);
+    Mockito.when(firstParameter.asType()).thenReturn(Mockito.mock(TypeMirror.class));
+    Mockito.doReturn(Arrays.asList(firstParameter)).when(constructor1).getParameters();
 
-    ExecutableElement constructor2 = mock(ExecutableElement.class);
-    when(constructor2.getKind()).thenReturn(ElementKind.CONSTRUCTOR);
+    ExecutableElement constructor2 = Mockito.mock(ExecutableElement.class);
+    Mockito.when(constructor2.getKind()).thenReturn(ElementKind.CONSTRUCTOR);
 
-    TypeElement typeElement = mock(TypeElement.class);
+    TypeElement typeElement = Mockito.mock(TypeElement.class);
     Mockito.doReturn(Arrays.asList(constructor1, constructor2))
         .when(typeElement)
         .getEnclosedElements();
@@ -408,7 +405,7 @@ import static org.mockito.Mockito.when;
     Object constructorParameters =
         invokePrivate("findConstructorParameters", mProcessor, TypeElement.class, typeElement);
 
-    assertThat(constructorParameters, not(null));
+    MatcherAssert.assertThat(constructorParameters, IsNot.not(null));
   }
 
   private void expectErrorType(ErrorType errorType) {
@@ -422,14 +419,15 @@ import static org.mockito.Mockito.when;
       throws Exception {
     expectErrorType(ErrorType.CONSTRUCTOR_MUST_HAVE_LEAST_ONE_PARAMETER);
 
-    ExecutableElement constructor1 = mock(ExecutableElement.class);
-    when(constructor1.getKind()).thenReturn(ElementKind.CONSTRUCTOR);
-    when(constructor1.getAnnotation(any(Class.class))).thenReturn(mock(Annotation.class));
+    ExecutableElement constructor1 = Mockito.mock(ExecutableElement.class);
+    Mockito.when(constructor1.getKind()).thenReturn(ElementKind.CONSTRUCTOR);
+    Mockito.when(constructor1.getAnnotation(Matchers.any(Class.class)))
+        .thenReturn(Mockito.mock(Annotation.class));
 
-    ExecutableElement constructor2 = mock(ExecutableElement.class);
-    when(constructor2.getKind()).thenReturn(ElementKind.CONSTRUCTOR);
+    ExecutableElement constructor2 = Mockito.mock(ExecutableElement.class);
+    Mockito.when(constructor2.getKind()).thenReturn(ElementKind.CONSTRUCTOR);
 
-    TypeElement typeElement = mock(TypeElement.class);
+    TypeElement typeElement = Mockito.mock(TypeElement.class);
     Mockito.doReturn(Arrays.asList(constructor1, constructor2))
         .when(typeElement)
         .getEnclosedElements();
@@ -441,15 +439,17 @@ import static org.mockito.Mockito.when;
       throws Exception {
     expectErrorType(ErrorType.MORE_THAN_ONE_CONSTRUCTORS_HAVE_ANNOTATION);
 
-    ExecutableElement constructor1 = mock(ExecutableElement.class);
-    when(constructor1.getKind()).thenReturn(ElementKind.CONSTRUCTOR);
-    when(constructor1.getAnnotation(any(Class.class))).thenReturn(mock(Annotation.class));
+    ExecutableElement constructor1 = Mockito.mock(ExecutableElement.class);
+    Mockito.when(constructor1.getKind()).thenReturn(ElementKind.CONSTRUCTOR);
+    Mockito.when(constructor1.getAnnotation(Matchers.any(Class.class)))
+        .thenReturn(Mockito.mock(Annotation.class));
 
-    ExecutableElement constructor2 = mock(ExecutableElement.class);
-    when(constructor2.getKind()).thenReturn(ElementKind.CONSTRUCTOR);
-    when(constructor2.getAnnotation(any(Class.class))).thenReturn(mock(Annotation.class));
+    ExecutableElement constructor2 = Mockito.mock(ExecutableElement.class);
+    Mockito.when(constructor2.getKind()).thenReturn(ElementKind.CONSTRUCTOR);
+    Mockito.when(constructor2.getAnnotation(Matchers.any(Class.class)))
+        .thenReturn(Mockito.mock(Annotation.class));
 
-    TypeElement typeElement = mock(TypeElement.class);
+    TypeElement typeElement = Mockito.mock(TypeElement.class);
     Mockito.doReturn(Arrays.asList(constructor1, constructor2))
         .when(typeElement)
         .getEnclosedElements();

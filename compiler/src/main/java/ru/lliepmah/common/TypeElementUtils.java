@@ -50,13 +50,14 @@ public class TypeElementUtils {
     return elementsBuilder.build();
   }
 
-  public static String packageNameOf(TypeElement type) {
+  public static String packageNameOf(final TypeElement type) {
+    TypeElement searchedType = type;
     while (true) {
-      Element enclosing = type.getEnclosingElement();
+      Element enclosing = searchedType.getEnclosingElement();
       if (enclosing instanceof PackageElement) {
         return ((PackageElement) enclosing).getQualifiedName().toString();
       }
-      type = (TypeElement) enclosing;
+      searchedType = (TypeElement) enclosing;
     }
   }
 
