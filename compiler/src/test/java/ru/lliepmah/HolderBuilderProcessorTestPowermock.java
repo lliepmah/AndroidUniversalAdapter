@@ -41,6 +41,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -77,7 +78,7 @@ public class HolderBuilderProcessorTestPowermock {
     }
 
     @Test
-    public void writeSourceFile_CloseWriter() throws Exception {
+    public void writeSourceFileCloseWriter() throws Exception {
         Writer writer = mock(Writer.class);
         doThrow(new IOException()).when(writer).write(any(String.class));
         doNothing().when(writer).close();
@@ -105,7 +106,7 @@ public class HolderBuilderProcessorTestPowermock {
     }
 
     @Test
-    public void writeSourceFile_IoExceptionWithCreateSourceFile() throws Exception {
+    public void writeSourceFileIoExceptionWithCreateSourceFile() throws Exception {
         IOException exception = mock(IOException.class);
 
         Filer filter = mock(Filer.class);
@@ -124,7 +125,7 @@ public class HolderBuilderProcessorTestPowermock {
     }
 
     @Test
-    public void generatedClassName_withoutPackage() throws Exception {
+    public void generatedClassNameWithoutPackage() throws Exception {
         final String TEST_CLASS_NAME = "ClassTest";
         final String TEST_PACKAGE_NAME = "package.test";
 
@@ -176,7 +177,7 @@ public class HolderBuilderProcessorTestPowermock {
     }
 
     @Test
-    public void findConstructor_noConstructors() throws Exception {
+    public void findConstructorNoConstructors() throws Exception {
 
         final TypeElement type = mock(TypeElement.class);
         when(type.getKind()).thenReturn(ElementKind.CLASS);
@@ -202,7 +203,7 @@ public class HolderBuilderProcessorTestPowermock {
     }
 
     @Test
-    public void checkTypeElement_unexpectedSuperclassOfType() throws Exception {
+    public void checkTypeElementUnexpectedSuperclassOfType() throws Exception {
 
         mockStatic(ClassName.class);
         when(ClassName.get(any(TypeElement.class))).thenReturn(mock(ClassName.class));
@@ -229,7 +230,7 @@ public class HolderBuilderProcessorTestPowermock {
     }
 
     @Test
-    public void checkTypeElement_illegalTypeParameter() throws Exception {
+    public void checkTypeElementIllegalTypeParameter() throws Exception {
         ClassName defaultViewHolder = ClassName.get("ru.lliepmah.lib", "DefaultViewHolder");
 
         mockStatic(ClassName.class);
@@ -259,7 +260,7 @@ public class HolderBuilderProcessorTestPowermock {
     }
 
     @Test
-    public void checkTypeElement_legalTypeParameter() throws Exception {
+    public void checkTypeElementIllegalTypeParameterFails() throws Exception {
         ClassName defaultViewHolder = ClassName.get("ru.lliepmah.lib", "DefaultViewHolder");
 
         mockStatic(ClassName.class);
@@ -280,7 +281,7 @@ public class HolderBuilderProcessorTestPowermock {
         try {
             method.invoke(mProcessor, type, holderBuilderAnnotation);
         } catch (Throwable factException) {
-            Assert.fail();
+            fail();
         }
 
     }

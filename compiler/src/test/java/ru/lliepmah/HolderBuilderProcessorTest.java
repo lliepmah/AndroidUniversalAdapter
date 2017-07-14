@@ -4,7 +4,6 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import com.google.common.base.Preconditions;
-import com.google.common.truth.Truth;
 import com.google.testing.compile.JavaFileObjects;
 import com.google.testing.compile.JavaSourcesSubjectFactory;
 import java.io.BufferedReader;
@@ -28,7 +27,6 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
-import junit.framework.TestCase;
 import org.hamcrest.core.IsEqual;
 import org.junit.Before;
 import org.junit.Rule;
@@ -46,6 +44,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -88,15 +88,17 @@ import static org.mockito.Mockito.when;
     assertThat(types.iterator().next(), is(HolderBuilder.class.getName()));
   }
 
-  @RequiresApi(api = Build.VERSION_CODES.GINGERBREAD) @Test public void init_withArguments()
+  @RequiresApi(api = Build.VERSION_CODES.GINGERBREAD) @Test public void initWithArguments()
       throws Exception {
     for (int parameterCount = 0; parameterCount < 4; parameterCount++) {
       testGeneratingParameters(parameterCount);
     }
+
+    assertTrue(true);
   }
 
   private void testGeneratingParameters(int parameterCount) throws IOException {
-    final String TEST_CLASS_NAME = "TestsParameterClass";
+    final String testClassName = "TestsParameterClass";
     int layoutId = 3;
 
     String[] parametersClasses = new String[parameterCount];
@@ -107,7 +109,7 @@ import static org.mockito.Mockito.when;
     StringBuilder testMembersDeclaration = new StringBuilder();
 
     for (int i = 0; i < parameterCount; i++) {
-      String parameterClass = TEST_CLASS_NAME + i;
+      String parameterClass = testClassName + i;
       String parameterName = "p" + parameterClass;
       String parameterMemberName = "m" + parameterClass;
 
@@ -321,11 +323,7 @@ import static org.mockito.Mockito.when;
   //        return JavaFileObjects.forSourceString(fullyQualifiedName, Joiner.on('\n').join(source));
   //    }
 
-  @Test public void process() throws Exception {
-
-  }
-
-  @Test public void checkTypeElement_classMustNotBeAbstract() throws Exception {
+  @Test public void checkTypeElementClassMustNotBeAbstract() throws Exception {
     expectErrorType(ErrorType.CLASS_MUST_NOT_BE_ABSTRACT);
     TypeElement type = mock(TypeElement.class);
 
@@ -342,9 +340,11 @@ import static org.mockito.Mockito.when;
             HolderBuilder.class);
     method.setAccessible(true);
     method.invoke(mProcessor, type, holderBuilderAnnotation);
+
+    fail();
   }
 
-  @Test public void checkTypeElement_annotationOnlyForClasses() throws Exception {
+  @Test public void checkTypeElementAnnotationOnlyForClasses() throws Exception {
     expectErrorType(ErrorType.ANNOTATION_ONLY_FOR_CLASSES);
     TypeElement type = mock(TypeElement.class);
     HolderBuilder holderBuilderAnnotation = mock(HolderBuilder.class);
@@ -356,7 +356,7 @@ import static org.mockito.Mockito.when;
     method.invoke(mProcessor, type, holderBuilderAnnotation);
   }
 
-  @Test public void checkTypeElement_compilerBug() throws Exception {
+  @Test public void checkTypeElementCompilerBug() throws Exception {
     expectErrorType(ErrorType.COMPILER_BUG);
     final Method method =
         HolderBuilderProcessor.class.getDeclaredMethod("checkTypeElement", TypeElement.class,
@@ -365,12 +365,12 @@ import static org.mockito.Mockito.when;
     method.invoke(mProcessor, null, null);
   }
 
-  @Test public void processType_typeElementIsNull() throws Exception {
+  @Test public void processTypeTypeElementIsNull() throws Exception {
     expectErrorType(ErrorType.TYPE_ELEMENT_IS_NULL);
     invokePrivate("processType", mProcessor, TypeElement.class, (TypeElement) null);
   }
 
-  @Test public void findConstructorParameters_noAnnotationInConstructors() throws Exception {
+  @Test public void findConstructorParametersNoAnnotationInConstructors() throws Exception {
     expectErrorType(ErrorType.NO_ANNOTATION_IN_CONSTRUCTORS);
 
     ExecutableElement constructor1 = mock(ExecutableElement.class);
@@ -386,7 +386,7 @@ import static org.mockito.Mockito.when;
     invokePrivate("findConstructorParameters", mProcessor, TypeElement.class, typeElement);
   }
 
-  @Test public void findConstructorParameters_unexpectedFirstParameterOfConstructor()
+  @Test public void findConstructorParametersUnexpectedFirstParameterOfConstructor()
       throws Exception {
     expectErrorType(ErrorType.UNEXPECTED_FIRST_PARAMETER_OF_CONSTRUCTOR);
 
@@ -418,7 +418,7 @@ import static org.mockito.Mockito.when;
     thrown.expectCause(IsEqual.equalTo(abortProcessingException));
   }
 
-  @Test public void findConstructorParameters_constructorMustHaveLeastOneParameter()
+  @Test public void findConstructorParametersConstructorMustHaveLeastOneParameter()
       throws Exception {
     expectErrorType(ErrorType.CONSTRUCTOR_MUST_HAVE_LEAST_ONE_PARAMETER);
 
@@ -437,7 +437,7 @@ import static org.mockito.Mockito.when;
     invokePrivate("findConstructorParameters", mProcessor, TypeElement.class, typeElement);
   }
 
-  @Test public void findConstructorParameters_moreThanOneConstructorsHaveAnnotation()
+  @Test public void findConstructorParametersMoreThanOneConstructorsHaveAnnotation()
       throws Exception {
     expectErrorType(ErrorType.MORE_THAN_ONE_CONSTRUCTORS_HAVE_ANNOTATION);
 

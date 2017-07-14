@@ -251,7 +251,7 @@ public class UniversalAdapterTest {
     }
 
     @Test
-    public void getItemCount_WithClass() throws Exception {
+    public void getItemCountWithClass() throws Exception {
         UniversalAdapter adapter = new UniversalAdapter(Arrays.asList(mBuilder1, mBuilder2));
 
         Object obj1 = new Model1();
