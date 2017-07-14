@@ -20,6 +20,8 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -39,12 +41,16 @@ public class UniversalAdapterTest {
     private Builder mBuilder1;
     private Builder mBuilder2;
 
+    private ViewGroup mViewGroup;
+
     @Before public void setUp() throws Exception {
         DefaultViewHolder holder1 = mock(DefaultViewHolder.class);
         when(holder1.getItemViewType()).thenReturn(FIRST_VIEW_TYPE);
 
         DefaultViewHolder holder2 = mock(DefaultViewHolder.class);
         when(holder2.getItemViewType()).thenReturn(SECOND_VIEW_TYPE);
+
+        mViewGroup = mock(ViewGroup.class);
 
         mBuilder1 = mock(Builder.class);
         when(mBuilder1.getHolderClass()).thenReturn(Model1.class);
@@ -62,6 +68,18 @@ public class UniversalAdapterTest {
         UniversalAdapter adapter = new UniversalAdapter(mBuilder1, mBuilder2);
         assertTrue(adapter.add(new ViewModelWrapper<>(new Model1(), FIRST_BUILDER_ID)));
         assertFalse(adapter.add(null));
+    }
+
+    @Test
+    public void onBindViewHolder() {
+        UniversalAdapter adapter = spy(new UniversalAdapter(mBuilder1, mBuilder2));
+        Model1 one = new Model1();
+        adapter.add(one);
+
+        DefaultViewHolder holder = mock(DefaultViewHolder.class);
+        adapter.onBindViewHolder(holder, 0);
+
+        verify(holder).bind(one);
     }
 
     @Test
