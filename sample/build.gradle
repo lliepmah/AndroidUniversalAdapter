@@ -12,7 +12,7 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
-    
+
     buildTypes {
         release {
             minifyEnabled false
@@ -22,17 +22,17 @@ android {
 }
 
 dependencies {
-    provided project(':annotations')
-    compile project(':library');
+    compileOnly project(':annotations')
+    implementation project(path: ':library')
     annotationProcessor project(':compiler')
 
-    compile deps.butterknife
+    implementation deps.butterknife
     annotationProcessor deps.butterknifeCompiler
 
-    compile deps.cardview
-    compile deps.supportCompat
-    compile deps.recyclerView
+    implementation deps.supportCompat
+    implementation deps.recyclerView
+    implementation deps.cardview
 
-    testCompile deps.junit
+    testImplementation deps.junit
 
 }

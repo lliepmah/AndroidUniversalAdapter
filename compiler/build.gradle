@@ -45,7 +45,7 @@ dependencies {
 
   testCompile files(Jvm.current().getToolsJar())
 
-  compileOnly project(path: ':library')
+  compileOnly project(path: ':library', configuration: 'default')
 }
 
 apply from: 'bintray.gradle'

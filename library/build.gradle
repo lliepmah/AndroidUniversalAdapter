@@ -40,27 +40,27 @@ android {
 }
 
 dependencies {
-  compile project(':annotations')
+  api project(':annotations')
 
-  compile deps.supportAnnotations
-  compile deps.recyclerView
+  implementation deps.supportAnnotations
+  implementation deps.recyclerView
 
-  testCompile deps.powermockMockito
-  testCompile deps.powermockJunit4
+  testImplementation deps.powermockMockito
+  testImplementation deps.powermockJunit4
 
-  testCompile(deps.junit) {
+  testImplementation (deps.junit) {
     exclude group: 'org.hamcrest'
   }
-  testCompile(deps.mockito) {
+  testImplementation (deps.mockito) {
     exclude group: 'org.hamcrest'
   }
-  testCompile deps.android
+  testImplementation deps.android
 
-  testCompile deps.hamcrest
-  testCompile deps.robolectric
+  testImplementation deps.hamcrest
+  testImplementation deps.robolectric
 
-  testCompile deps.truth
-  testCompile deps.junit
+  testImplementation deps.truth
+  testImplementation deps.junit
 }
 
 apply from: 'bintray.gradle'
