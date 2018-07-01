@@ -13,6 +13,7 @@ public enum ErrorType {
     COMPILER_BUG("annotation processor for @%1$s was invoked with a type annotated differently; compiler bug? O_o"),
     UNEXPECTED_SUPERCLASS_OF_TYPE("Superclass of %1$s must be %2$s, but it is %3$s"),
     ILLEGAL_TYPE_PARAMETER("Class %1$s must not have parameters=<%2$s>"),
+    METHOD_NOT_FOUND("Class %1$s must implement the method '%2$s'"),
 
     UNKNOWN("");
 
