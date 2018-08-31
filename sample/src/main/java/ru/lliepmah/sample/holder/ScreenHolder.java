@@ -1,5 +1,6 @@
 package ru.lliepmah.sample.holder;
 
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.TextView;
 
@@ -40,7 +41,7 @@ public class ScreenHolder extends DefaultViewHolder<Screen> {
     }
 
     @Override
-    public void bind(Screen screen) {
+    public void bind(@NonNull Screen screen) {
         mScreen = screen;
         mTvText.setText(screen.getTitle());
     }

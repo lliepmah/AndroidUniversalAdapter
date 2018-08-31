@@ -1,5 +1,6 @@
 package ru.lliepmah.sample.holder;
 
+import android.support.annotation.NonNull;
 import android.view.View;
 
 import ru.lliepmah.HolderBuilder;
@@ -11,12 +12,12 @@ import ru.lliepmah.sample.R;
 @HolderBuilder(R.layout.li_label)
 public class ChildViewHolder extends BaseViewHolder<String> {
 
-    public ChildViewHolder(View itemView) {
+    ChildViewHolder(View itemView) {
         super(itemView);
     }
 
     @Override
-    public void bind(String model) {
+    public void bind(@NonNull String model) {
         super.bind(model);
     }
 }

@@ -1,5 +1,6 @@
 package ru.lliepmah.sample.holder;
 
+import android.support.annotation.NonNull;
 import android.view.View;
 
 import ru.lliepmah.lib.DefaultViewHolder;
@@ -9,14 +10,14 @@ import ru.lliepmah.lib.DefaultViewHolder;
  */
 public abstract class BaseViewHolder<T extends CharSequence> extends DefaultViewHolder<T> {
 
-    public BaseViewHolder(View itemView) {
+    BaseViewHolder(View itemView) {
         super(itemView);
     }
 
     T mModel;
 
     @Override
-    public void bind(T model) {
+    public void bind(@NonNull T model) {
 
     }
 }

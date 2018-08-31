@@ -1,5 +1,6 @@
 package ru.lliepmah.sample.holder;
 
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.TextView;
 
@@ -34,7 +35,7 @@ public class UserHolder extends DefaultViewHolder<Person> {
     }
 
     @Override
-    public void bind(Person person) {
+    public void bind(@NonNull Person person) {
         mPerson = person;
 
         mTvName.setText(mPerson.getFirstName());

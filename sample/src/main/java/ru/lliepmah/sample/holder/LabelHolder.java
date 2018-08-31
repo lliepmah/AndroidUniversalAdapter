@@ -1,5 +1,6 @@
 package ru.lliepmah.sample.holder;
 
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.TextView;
 
@@ -37,7 +38,7 @@ class LabelHolder extends DefaultViewHolder<String> {
     }
 
     @Override
-    public void bind(String text) {
+    public void bind(@NonNull String text) {
         mTvText.setText(mValue + text);
     }
 }

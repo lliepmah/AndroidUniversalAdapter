@@ -1,5 +1,6 @@
 package ru.lliepmah.sample.holder;
 
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.TextView;
 
@@ -39,7 +40,7 @@ public class PostBestHolder extends DefaultViewHolder<Post> {
     }
 
     @Override
-    public void bind(Post post) {
+    public void bind(@NonNull Post post) {
         mPost = post;
         mTvText.setText(post.getText());
         mTvTitle.setText(post.getTitle());

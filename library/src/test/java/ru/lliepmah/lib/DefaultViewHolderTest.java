@@ -1,5 +1,6 @@
 package ru.lliepmah.lib;
 
+import android.support.annotation.NonNull;
 import android.view.View;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.core.Is;
@@ -25,7 +26,7 @@ import org.robolectric.annotation.Config;
     mItemView = Mockito.mock(View.class);
 
     mDefaultViewHolder = new DefaultViewHolder<Object>(mItemView) {
-      @Override public void bind(Object model) {
+      @Override public void bind(@NonNull Object model) {
 
       }
     };

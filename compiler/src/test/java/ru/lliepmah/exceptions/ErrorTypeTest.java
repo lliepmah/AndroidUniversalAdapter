@@ -12,7 +12,7 @@ import org.junit.runners.JUnit4;
  */
 @RunWith(JUnit4.class) public class ErrorTypeTest {
 
-  private static final int ERRORS_COUNT = 11;
+  private static final int ERRORS_COUNT = 12;
 
   @Test public void valuesTest() {
     ErrorType[] values = ErrorType.values();

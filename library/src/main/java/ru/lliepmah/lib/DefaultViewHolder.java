@@ -1,5 +1,6 @@
 package ru.lliepmah.lib;
 
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
@@ -12,7 +13,7 @@ public abstract class DefaultViewHolder<T> extends RecyclerView.ViewHolder {
         super(itemView);
     }
 
-    public abstract void bind(T model);
+    public abstract void bind(@NonNull T model);
 
     public View getView() {
         return itemView;
