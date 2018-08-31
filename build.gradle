@@ -7,9 +7,9 @@ buildscript {
   dependencies {
     classpath 'com.eriwen:gradle-cobertura-plugin:1.1.1'
 
-    classpath 'com.android.tools.build:gradle:3.1.3'
+    classpath 'com.android.tools.build:gradle:3.1.4'
     classpath 'gradle.plugin.com.kageiit:lintrules:1.1.3'
-    classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.3'
+    classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
     classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.8.2'
     classpath "com.github.ben-manes:gradle-versions-plugin:0.20.0"
   }
@@ -60,18 +60,18 @@ ext {
   majorVersion = 0
   minorVersion = 1
   libraryVersion =
-      "$majorVersion.$minorVersion.$libraryVersionCode-SNAPSHOT${System.getenv('TRAVIS_BUILD_NUMBER')}"
+      "$majorVersion.$minorVersion.$libraryVersionCode"
 
   minSdkVersion = 15
-  targetSdkVersion = 27
-  compileSdkVersion = 27
+  targetSdkVersion = 28
+  compileSdkVersion = 28
 
-  buildToolsVersion = '27.0.3'
+  buildToolsVersion = '28.0.2'
   sourceCompatibilityVersion = JavaVersion.VERSION_1_7
   targetCompatibilityVersion = JavaVersion.VERSION_1_7
 }
 
-def androidToolsVersion = '27.0.3'
+def androidToolsVersion = '28.0.2'
 def supportLibraryVersion = '27.1.1'
 
 ext.deps = [/* Android */
@@ -100,7 +100,7 @@ ext.deps = [/* Android */
 
             /* Test dependencies */
             junit              : 'junit:junit:4.12',
-            truth              : 'com.google.truth:truth:0.41',
+            truth              : 'com.google.truth:truth:0.42',
             robolectric        : 'org.robolectric:robolectric:3.8',
             openglApi          : 'org.khronos:opengl-api:gl1.1-android-2.1_r1',
             compiletesting     : 'com.google.testing.compile:compile-testing:0.15',

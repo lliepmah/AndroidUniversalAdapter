@@ -45,13 +45,13 @@ dependencies {
   implementation deps.supportAnnotations
   implementation deps.recyclerView
 
-  testImplementation deps.powermockMockito
-  testImplementation deps.powermockJunit4
+  testApi deps.powermockMockito
+  testApi deps.powermockJunit4
 
-  testImplementation (deps.junit) {
+  testApi (deps.junit) {
     exclude group: 'org.hamcrest'
   }
-  testImplementation (deps.mockito) {
+  testApi (deps.mockito) {
     exclude group: 'org.hamcrest'
   }
   testImplementation deps.android
