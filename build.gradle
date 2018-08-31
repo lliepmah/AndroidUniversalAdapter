@@ -53,7 +53,7 @@ ext {
   jcenterGroup = 'com.github.lliepmah'
   gitHubUrl = 'https://github.com/lliepmah/AndroidUniversalAdapter'
 
-  libraryVersionCode = 4
+  libraryVersionCode = 5
 
   println "libraryVersionCode=$libraryVersionCode"
 
