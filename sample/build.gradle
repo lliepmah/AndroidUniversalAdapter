@@ -1,5 +1,4 @@
 apply plugin: 'com.android.application'
-apply plugin: 'com.neenbedankt.android-apt'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -13,7 +12,7 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
-    
+
     buildTypes {
         release {
             minifyEnabled false
@@ -23,17 +22,17 @@ android {
 }
 
 dependencies {
-    provided project(':annotations')
-    compile project(':library');
-    apt project(':compiler')
+    compileOnly project(':annotations')
+    implementation project(path: ':library')
+    annotationProcessor project(':compiler')
 
-    compile deps.butterknife
-    apt deps.butterknifeCompiler
+    implementation deps.butterknife
+    annotationProcessor deps.butterknifeCompiler
 
-    compile deps.cardview
-    compile deps.supportCompat
-    compile deps.recyclerView
+    implementation deps.supportCompat
+    implementation deps.recyclerView
+    implementation deps.cardview
 
-    testCompile deps.junit
+    testImplementation deps.junit
 
 }

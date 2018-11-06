@@ -12,11 +12,10 @@ import java.util.List;
 
 import ru.lliepmah.lib.exceptions.ErrorHandler;
 
-
 /**
- * Created by Arthur Korchagin on 03.02.16
+ * @author Arthur Korchagin on 03.02.16
  */
-
+@SuppressWarnings({"WeakerAccess", "unused"})
 public class UniversalAdapter extends RecyclerView.Adapter<DefaultViewHolder> {
 
     private final List<ViewModelWrapper> mItems = new ArrayList<>();
@@ -36,14 +35,17 @@ public class UniversalAdapter extends RecyclerView.Adapter<DefaultViewHolder> {
     }
 
     @Override
-    public DefaultViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    @NonNull
+    public DefaultViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return mBuilders.get(viewType).build(parent);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public void onBindViewHolder(DefaultViewHolder holder, int position) {
-        holder.bind(mItems.get(position).getModel());
+    public void onBindViewHolder(@NonNull DefaultViewHolder holder, int position) {
+        //TODO Add checks
+
+        holder.bind(getItem(position));
     }
 
     @Override
@@ -100,15 +102,17 @@ public class UniversalAdapter extends RecyclerView.Adapter<DefaultViewHolder> {
         add(mItems.size(), item, builderId);
     }
 
-    public void add(Object item) {
-        add(mItems.size(), item);
+    public boolean add(Object item) {
+        return add(mItems.size(), item);
     }
 
-    public void add(int index, Object item) {
+    public boolean add(int index, Object item) {
         if (item != null) {
             int builderId = findBuilderId(item);
             mItems.add(index, ViewModelWrapper.build(item, builderId));
+            return true;
         }
+        return false;
     }
 
     public void add(int index, Object item, int builderId) {
@@ -119,21 +123,27 @@ public class UniversalAdapter extends RecyclerView.Adapter<DefaultViewHolder> {
             }
             mItems.add(index, ViewModelWrapper.build(item, builderId));
         }
+
+        /* TODO add else branch */
     }
 
     public Object getItem(int position) {
         return mItems.get(position).getModel();
     }
 
+    // TODO: 10.01.17 Maybe optimize that?
+
     public void addAll(List items) {
-        if (items != null && items.size() > 0) {
-            int builderId = findBuilderId(items.get(0));
-            addAll(items, builderId);
+        if (items != null && !items.isEmpty()) {
+            for (Object item : items) {
+                int builderId = findBuilderId(item);
+                add(item, builderId);
+            }
         }
     }
 
     public void addAll(List items, int builderId) {
-        if (items != null && items.size() > 0) {
+        if (items != null && !items.isEmpty()) {
             Builder builder = findBuilder(builderId);
             Object firstItem = items.get(0);
             if (!builder.getHolderClass().isInstance(firstItem)) {
@@ -150,7 +160,6 @@ public class UniversalAdapter extends RecyclerView.Adapter<DefaultViewHolder> {
         mItems.clear();
         addAll(items);
     }
-
 
     public void replaceAll(List items, int builderId) {
         mItems.clear();
@@ -172,12 +181,17 @@ public class UniversalAdapter extends RecyclerView.Adapter<DefaultViewHolder> {
         }
     }
 
-    public void clear() {
+    public boolean clear() {
+        if (mItems.isEmpty()) {
+            return false;
+        }
+
         mItems.clear();
-        notifyDataSetChanged();
+        return true;
     }
 
     /* Internal utils */
+
     private Builder findBuilder(int builderId) {
         if (!mBuilders.containsKey(builderId)) {
             ErrorHandler.erroNoOneBuildersHaveId(mBuilders.values(), builderId);
@@ -187,7 +201,7 @@ public class UniversalAdapter extends RecyclerView.Adapter<DefaultViewHolder> {
 
     private int findBuilderId(Object item) {
         List<Builder> builders = findBuilders(item);
-        if (builders.size() == 0) {
+        if (builders.isEmpty()) {
             ErrorHandler.erroNoOneBuildersHandleItem(mBuilders.values(), item);
         } else if (builders.size() > 1) {
             ErrorHandler.errorMoreThanOneBuildersHandleItem(builders, item);
@@ -213,7 +227,6 @@ public class UniversalAdapter extends RecyclerView.Adapter<DefaultViewHolder> {
                 return mItems.indexOf(wrapper);
             }
         }
-
         return -1;
     }
 }

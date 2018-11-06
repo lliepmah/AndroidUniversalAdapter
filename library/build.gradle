@@ -1,51 +1,67 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
+  compileSdkVersion rootProject.ext.compileSdkVersion
+  buildToolsVersion rootProject.ext.buildToolsVersion
 
-    defaultConfig {
-        minSdkVersion rootProject.ext.minSdkVersion
-        targetSdkVersion rootProject.ext.targetSdkVersion
+  defaultConfig {
+    minSdkVersion rootProject.ext.minSdkVersion
+    targetSdkVersion rootProject.ext.targetSdkVersion
 
-        println "lib:versionCode: ${rootProject.ext.libraryVersionCode}"
+    versionCode rootProject.ext.libraryVersionCode
+    versionName rootProject.ext.libraryVersion
 
-        versionCode rootProject.ext.libraryVersionCode
-        versionName rootProject.ext.libraryVersion
+    vectorDrawables.useSupportLibrary = true
 
-        vectorDrawables.useSupportLibrary = true
-
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
+    testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+  }
+  buildTypes {
+    debug {
+      testCoverageEnabled false
     }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
+    release {
+      testCoverageEnabled false
+      minifyEnabled false
+      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+    }
+  }
+
+  testOptions {
+    unitTests {
+      all {
+        jvmArgs '-noverify'
+        jacoco {
+          includeNoLocationClasses = true
         }
+      }
     }
+  }
 }
 
 dependencies {
-    compile project(':annotations')
+  api project(':annotations')
 
-    compile deps.supportAnnotations
-    compile deps.recyclerView
+  implementation deps.supportAnnotations
+  implementation deps.recyclerView
 
-    androidTestCompile(deps.espressoCore, {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
+  testApi deps.powermockMockito
+  testApi deps.powermockJunit4
 
-    testCompile(deps.junit) {
-        exclude group: 'org.hamcrest'
-    }
-    testCompile(deps.mockito) {
-        exclude group: 'org.hamcrest'
-    }
-    testCompile deps.hamcrest
-    testCompile deps.robolectric
+  testApi (deps.junit) {
+    exclude group: 'org.hamcrest'
+  }
+  testApi (deps.mockito) {
+    exclude group: 'org.hamcrest'
+  }
+  testImplementation deps.android
 
+  testImplementation deps.hamcrest
+  testImplementation deps.robolectric
+
+  testImplementation deps.truth
+  testImplementation deps.junit
 }
 
-apply from: 'jacoco.gradle'
 apply from: 'bintray.gradle'
+apply from: 'jacoco.gradle'

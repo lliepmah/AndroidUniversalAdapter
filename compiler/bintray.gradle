@@ -13,7 +13,7 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             pom { packaging 'jar' }
-            artifact file("build/libs/compiler-${libraryVersion}.jar")
+            artifact file("build/libs/universal-adapter-compiler-${libraryVersion}.jar")
             artifact sourcesJar
             pom.withXml {
                 Node root = asNode()
@@ -66,8 +66,8 @@ bintray {
     publications = ['mavenJava']
     publish = true
     pkg {
-        repo = 'universal-adapter'
-        name = 'compiler'
+        repo = 'com.github.lliepmah'
+        name = 'universal-adapter-compiler'
         userOrg = user
         licenses = ['Apache-2.0']
         version {

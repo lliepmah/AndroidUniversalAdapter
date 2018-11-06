@@ -1,10 +1,11 @@
 package ru.lliepmah.sample.holder;
 
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.TextView;
 
-import com.lliepmah.HolderBuilder;
-import com.lliepmah.HolderConstructor;
+import ru.lliepmah.HolderBuilder;
+import ru.lliepmah.HolderConstructor;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -37,7 +38,7 @@ class LabelHolder extends DefaultViewHolder<String> {
     }
 
     @Override
-    public void bind(String text) {
+    public void bind(@NonNull String text) {
         mTvText.setText(mValue + text);
     }
 }

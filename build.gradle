@@ -1,105 +1,197 @@
 buildscript {
-    repositories {
-        jcenter()
-        maven { url "https://plugins.gradle.org/m2/" }
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.3'
-        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
-        classpath 'gradle.plugin.com.kageiit:lintrules:1.1.2'
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
-        classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.7.1'
-        classpath "com.github.ben-manes:gradle-versions-plugin:0.13.0"
-    }
+  repositories {
+    jcenter()
+    google()
+    maven { url "https://plugins.gradle.org/m2/" }
+  }
+  dependencies {
+    classpath 'com.eriwen:gradle-cobertura-plugin:1.1.1'
+
+    classpath 'com.android.tools.build:gradle:3.1.4'
+    classpath 'gradle.plugin.com.kageiit:lintrules:1.1.3'
+    classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
+    classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.8.2'
+    classpath "com.github.ben-manes:gradle-versions-plugin:0.20.0"
+  }
 }
 
 repositories {
-    jcenter()
+  jcenter()
+  google()
+  maven { url 'https://maven.fabric.io/public' }
+  maven { url "https://jitpack.io" }
+  maven { url 'https://maven.google.com/' }
 }
 
 apply plugin: 'checkstyle'
 apply plugin: 'com.github.ben-manes.versions'
 
+apply plugin: 'cobertura'
+apply plugin: 'com.github.kt3k.coveralls'
+apply plugin: 'jacoco'
+
+cobertura {
+  format = 'html'
+  includes = ['**/*.java', '**/*.groovy']
+  excludes = ['com/thirdparty/**/*.*']
+}
+
 checkstyle {
-    toolVersion = '6.14.1'
+  toolVersion = '6.14.1'
 }
 
 task checkstyle(type: Checkstyle) {
-    configFile rootProject.file('checkstyle.xml')
-    source fileTree({ 'library/src/main/java'; 'compiler/src/main/java' })
-    ignoreFailures false
-    showViolations true
-    include '**/*.java'
-    classpath = files()
+  configFile rootProject.file('checkstyle.xml')
+  source fileTree({ 'library/src/main/java'; 'compiler/src/main/java' })
+  ignoreFailures false
+  showViolations true
+  include '**/*.java'
+  classpath = files()
 }
-
-def androidToolsVersion = '25.1.2'
-def supportLibraryVersion = '25.0.1'
-def butterknifeLatestReleaseVersion = '8.4.0'
 
 ext {
-    jcenterGroup = 'universal-adapter'
-    gitHubUrl = 'https://github.com/lliepmah/AndroidUniversalAdapter'
+  jcenterGroup = 'com.github.lliepmah'
+  gitHubUrl = 'https://github.com/lliepmah/AndroidUniversalAdapter'
 
-    libraryVersionCode = System.getenv('TRAVIS_BUILD_NUMBER') ?: 3
+  libraryVersionCode = 5
 
-    println "libraryVersionCode=$libraryVersionCode"
+  println "libraryVersionCode=$libraryVersionCode"
 
-    majorVersion = 0
-    minorVersion = 0
-    libraryVersion = "$majorVersion.$minorVersion.$libraryVersionCode"
+  majorVersion = 0
+  minorVersion = 1
+  libraryVersion =
+      "$majorVersion.$minorVersion.$libraryVersionCode"
 
-    minSdkVersion = 9
-    targetSdkVersion = 25
-    compileSdkVersion = 25
+  minSdkVersion = 15
+  targetSdkVersion = 28
+  compileSdkVersion = 28
 
-    buildToolsVersion = '25.0.1'
-    sourceCompatibilityVersion = JavaVersion.VERSION_1_6
-    targetCompatibilityVersion = JavaVersion.VERSION_1_6
+  buildToolsVersion = '28.0.2'
+  sourceCompatibilityVersion = JavaVersion.VERSION_1_7
+  targetCompatibilityVersion = JavaVersion.VERSION_1_7
 }
 
-ext.deps = [
-        /* Android */
-        android            : 'com.google.android:android:4.1.1.4',
-        supportCompat      : "com.android.support:appcompat-v7:$supportLibraryVersion",
-        cardview           : "com.android.support:cardview-v7:$supportLibraryVersion",
-        supportAnnotations : "com.android.support:support-annotations:$supportLibraryVersion",
-        recyclerView       : "com.android.support:recyclerview-v7:$supportLibraryVersion",
-        supportTestRunner  : 'com.android.support.test:runner:0.5',
-        androidGradle      : 'com.android.tools.build:gradle:2.2.0',
-        butterknife        : "com.jakewharton:butterknife:$butterknifeLatestReleaseVersion",
-        butterknifeCompiler: "com.jakewharton:butterknife-compiler:$butterknifeLatestReleaseVersion",
+def androidToolsVersion = '28.0.2'
+def supportLibraryVersion = '27.1.1'
 
-        /* Analysers */
-        lint               : "com.android.tools.lint:lint:$androidToolsVersion",
-        lintApi            : "com.android.tools.lint:lint-api:$androidToolsVersion",
-        lintChecks         : "com.android.tools.lint:lint-checks:$androidToolsVersion",
-        lintTests          : "com.android.tools.lint:lint-tests:$androidToolsVersion",
+ext.deps = [/* Android */
+            android            : 'com.google.android:android:4.1.1.4',
 
-        /* Java */
-        javapoet           : 'com.squareup:javapoet:1.8.0',
-        javaparser         : 'com.github.javaparser:javaparser-core:2.4.0',
+            supportCompat      : "com.android.support:appcompat-v7:$supportLibraryVersion",
+            cardview           : "com.android.support:cardview-v7:$supportLibraryVersion",
+            supportAnnotations : "com.android.support:support-annotations:$supportLibraryVersion",
+            recyclerView       : "com.android.support:recyclerview-v7:$supportLibraryVersion",
 
-        /* Test dependencies */
-        junit              : 'junit:junit:4.12',
-        truth              : 'com.google.truth:truth:0.30',
-        robolectric        : 'org.robolectric:robolectric:3.1.4',
-        openglApi          : 'org.khronos:opengl-api:gl1.1-android-2.1_r1',
-        compiletesting     : 'com.google.testing.compile:compile-testing:0.9',
-        autoservice        : 'com.google.auto.service:auto-service:1.0-rc2',
-        autocommon         : 'com.google.auto:auto-common:0.8',
-        hamcrest           : 'org.hamcrest:java-hamcrest:2.0.0.0',
-        mockito            : 'org.mockito:mockito-all:1.10.19',
-        espressoCore       : 'com.android.support.test.espresso:espresso-core:2.2.2',
+            supportTestRunner  : 'com.android.support.test:runner:0.5',
+            androidGradle      : 'com.android.tools.build:gradle:3.1.2',
 
-]
+            butterknife        : "com.jakewharton:butterknife:8.8.1",
+            butterknifeCompiler: "com.jakewharton:butterknife-compiler:8.8.1",
+
+            /* Analysers */
+            lint               : "com.android.tools.lint:lint:$androidToolsVersion",
+            lintApi            : "com.android.tools.lint:lint-api:$androidToolsVersion",
+            lintChecks         : "com.android.tools.lint:lint-checks:$androidToolsVersion",
+            lintTests          : "com.android.tools.lint:lint-tests:$androidToolsVersion",
+
+            /* Java */
+            javapoet           : 'com.squareup:javapoet:1.11.1',
+            javaparser         : 'com.github.javaparser:javaparser-core:3.2.8',
+
+            /* Test dependencies */
+            junit              : 'junit:junit:4.12',
+            truth              : 'com.google.truth:truth:0.42',
+            robolectric        : 'org.robolectric:robolectric:3.8',
+            openglApi          : 'org.khronos:opengl-api:gl1.1-android-2.1_r1',
+            compiletesting     : 'com.google.testing.compile:compile-testing:0.15',
+            autoservice        : 'com.google.auto.service:auto-service:1.0-rc3',
+            autocommon         : 'com.google.auto:auto-common:0.10',
+            hamcrest           : 'org.hamcrest:java-hamcrest:2.0.0.0',
+            mockito            : 'org.mockito:mockito-all:1.10.19',
+            espressoCore       : 'com.android.support.test.espresso:espresso-core:2.2.2',
+            fishbowl           : 'com.github.stefanbirkner:fishbowl:1.4.1',
+
+            powermockMockito   : 'org.powermock:powermock-api-mockito:1.7.4',
+            powermockJunit4    : 'org.powermock:powermock-module-junit4:1.7.4',]
 
 allprojects {
-    repositories {
-        jcenter()
-    }
+  repositories {
+    jcenter()
+    google()
+    maven { url 'https://maven.fabric.io/public' }
+    maven { url "https://jitpack.io" }
+    maven { url 'https://maven.google.com/' }
+  }
 }
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
+def testableProjectsNames = [':compiler', ':library']
+
+def publishedProjects = subprojects.findAll() {
+  testableProjectsNames.contains(it.path)
+}
+
+task jacocoRootReport(type: JacocoReport, group: 'Coverage reports') {
+
+  afterEvaluate {
+
+    group = 'Reporting'
+    description = 'Generates an aggregate report from all subprojects'
+
+    sourceDirectories = files(publishedProjects.projectDir.collect {
+      file(it.path + "/src/main/java")
+    })
+
+    executionData = files(publishedProjects.buildDir.collect {
+      fileTree(dir: "$it/jacoco/", includes: ['**/*.exec', '**/*.ec'])
+    })
+
+    classDirectories = files(publishedProjects.buildDir.collect {
+      fileTree(dir: it,
+          includes: ['**/classes/main/**/*.class',
+                     '**/classes/debug/**/*.class'],
+          excludes: ['**/R.class',
+                     '**/R$*.class',
+                     '**/BuildConfig.*',
+                     '**/Manifest*.*',
+                     '**/*Test*.*',
+                     '**/*Assert*.*',
+                     '**/*Exception*.*',])
+    })
+  }
+
+  reports {
+    html.enabled = true // human readable
+    xml.enabled = true // required by coveralls
+  }
+}
+
+coveralls {
+  sourceDirs = publishedProjects.projectDir.collect {
+    file(it.path + "/src/main/java")
+  }
+
+  jacocoReportPath = "${buildDir}/reports/jacoco/jacocoRootReport/jacocoRootReport.xml"
+}
+
+tasks.coveralls {
+  dependsOn jacocoRootReport
+}
+
+dependencyUpdates.resolutionStrategy = {
+  componentSelection { rules ->
+    rules.all { ComponentSelection selection ->
+      boolean rejected = ['alpha', 'beta', 'rc', 'cr', 'm'].any { qualifier ->
+        selection.candidate.version ==~ /(?i).*[.-]${qualifier}[.\d-]*/
+      }
+
+      boolean wrongLib = ['com.google.gms:google-services:3.3.1',
+                          'com.google.gms:google-services:3.3.0'].any { qualifier ->
+        selection.candidate.displayName == qualifier
+      }
+
+      if (rejected || wrongLib) {
+        selection.reject('Release candidate')
+      }
+    }
+  }
 }
