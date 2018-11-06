@@ -1,14 +1,22 @@
 language: android
 
-jdk:
-  - oraclejdk8
+addons:
+    apt:
+      packages:
+        - oracle-java8-installer
+
+before_install:
+
+    - export JAVA_HOME=/usr/lib/jvm/java-8-oracle
+    - export PATH=$JAVA_HOME/bin:$PATH
+    - java -version
 
 android:
   components:
     - tools
     - platform-tools
-    - build-tools-25.0.1
-    - android-25
+    - build-tools-27.0.3
+    - android-26
     - extra-android-m2repository
     - extra-android-support
 
@@ -21,15 +29,13 @@ cache:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
 
-env:
-  global:
-    - COVERALLS_REPO_TOKEN=qqeJnWXRN3vRFgg5qKPiRO5jEqc3DOcSm
-
+#env:
+#  global:
 #before_script:
 #    - ./gradlew clean checkstyle
 
 script:
-    - ./gradlew testDebugUnitTest jacocoTestReport coveralls :compiler:bintrayUpload :library:bintrayUpload
+    - ./gradlew test coveralls
 
 notifications:
   email: false

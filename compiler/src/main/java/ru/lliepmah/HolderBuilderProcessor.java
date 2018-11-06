@@ -1,6 +1,5 @@
-package com.lliepmah;
+package ru.lliepmah;
 
-import android.annotation.SuppressLint;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 
@@ -8,8 +7,6 @@ import com.google.auto.common.MoreTypes;
 import com.google.auto.service.AutoService;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import com.lliepmah.common.SpecUtils;
-import com.lliepmah.common.TypeElementUtils;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
@@ -28,9 +25,12 @@ import java.util.List;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.Filer;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
+import javax.annotation.processing.SupportedSourceVersion;
+import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
@@ -42,38 +42,55 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import javax.tools.JavaFileObject;
 
-@SuppressLint("NewApi")
+import ru.lliepmah.common.SpecUtils;
+import ru.lliepmah.common.TypeElementUtils;
+import ru.lliepmah.exceptions.ErrorType;
+
+/**
+ * @author Arthur Korchagin
+ */
+@SupportedSourceVersion(SourceVersion.RELEASE_7)
 @AutoService(Processor.class)
 public final class HolderBuilderProcessor extends AbstractProcessor {
 
     /* Annotations */
+
     private static final Class<HolderBuilder> ANNOTATION = HolderBuilder.class;
     private static final Class<HolderConstructor> ANNOTATION_CONSTRUCTOR = HolderConstructor.class;
 
     /* Types */
+
+    private static final String PACKAGE_ANDROID_VIEW = "android.view";
+
     private static final ClassName TYPE_BUILDER = ClassName.get("ru.lliepmah.lib", "Builder");
     private static final ClassName TYPE_CLASS = ClassName.get(Class.class);
+    private static final ClassName TYPE_OBJECT = ClassName.get(Object.class);
 
-    private static final TypeName TYPE_DEFAULT_VIEW_HOLDER = ClassName.get("ru.lliepmah.lib", "DefaultViewHolder");
-    private static final TypeName TYPE_VIEW = ClassName.get("android.view", "View");
-    private static final TypeName TYPE_VIEW_GROUP = ClassName.get("android.view", "ViewGroup");
-    private static final TypeName TYPE_CONTEXT = ClassName.get("android.content", "Context");
-    private static final TypeName TYPE_LAYOUT_INFLATER = ClassName.get("android.view", "LayoutInflater");
+    private static final TypeName TYPE_DEFAULT_VIEW_HOLDER =
+            ClassName.get("ru.lliepmah.lib", "DefaultViewHolder");
+    private static final TypeName TYPE_VIEW = ClassName.get(PACKAGE_ANDROID_VIEW, "View");
+    private static final TypeName TYPE_VIEW_GROUP = ClassName.get(PACKAGE_ANDROID_VIEW, "ViewGroup");
+    private static final TypeName TYPE_LAYOUT_INFLATER =
+            ClassName.get(PACKAGE_ANDROID_VIEW, "LayoutInflater");
 
     /* Constants */
+
     private static final String CONSTANT_HOLDER_ID = "HOLDER_ID";
     private static final String CONSTANT_MODEL_CLASS = "MODEL_CLASS";
 
     /* Methods */
+
     private static final String METHOD_GET_ID = "getId";
     private static final String METHOD_BUILD = "build";
+    private static final String METHOD_BIND = "bind";
     private static final String METHOD_GET_HOLDER_CLASS = "getHolderClass";
 
     /* Variables */
-    private static final String VARIABLE_CONTEXT = "context";
+
     private static final String VARIABLE_PARENT = "parent";
 
     /* Postfix */
+
     private static final String POSTFIX_BUILDER = "Builder";
 
     private int mVersion = 0;
@@ -87,7 +104,7 @@ public final class HolderBuilderProcessor extends AbstractProcessor {
 
     @Override
     public Set<String> getSupportedAnnotationTypes() {
-        Set<String> types = new LinkedHashSet<String>();
+        Set<String> types = new LinkedHashSet<>();
         for (Class<? extends Annotation> annotation : getSupportedAnnotations()) {
             types.add(annotation.getCanonicalName());
         }
@@ -95,18 +112,17 @@ public final class HolderBuilderProcessor extends AbstractProcessor {
     }
 
     private Set<Class<? extends Annotation>> getSupportedAnnotations() {
-        Set<Class<? extends Annotation>> annotations = new LinkedHashSet<Class<? extends Annotation>>();
+        Set<Class<? extends Annotation>> annotations = new LinkedHashSet<>();
         annotations.add(ANNOTATION);
         return annotations;
     }
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment env) {
-        Collection<? extends Element> annotatedElements =
-                env.getElementsAnnotatedWith(ANNOTATION);
-        List<TypeElement> types = new ImmutableList.Builder<TypeElement>()
-                .addAll(ElementFilter.typesIn(annotatedElements))
-                .build();
+        Collection<? extends Element> annotatedElements = env.getElementsAnnotatedWith(ANNOTATION);
+        List<TypeElement> types =
+                new ImmutableList.Builder<TypeElement>().addAll(ElementFilter.typesIn(annotatedElements))
+                        .build();
 
         for (TypeElement type : types) {
             processType(type);
@@ -116,88 +132,95 @@ public final class HolderBuilderProcessor extends AbstractProcessor {
 
     private void processType(TypeElement type) {
         if (type == null) {
-            mErrorReporter.abortWithError("TypeElement is null", null);
-            return;
+            throw mErrorReporter.abortWithError(null, ErrorType.TYPE_ELEMENT_IS_NULL);
+        } else {
+            String fqClassName = generatedSubclassName(type, 0);
+            String className = TypeElementUtils.simpleNameOf(fqClassName);
+            HolderBuilder holderBuilderAnnotation = type.getAnnotation(ANNOTATION);
+            checkTypeElement(type, holderBuilderAnnotation);
+            String source = generateCode(holderBuilderAnnotation.value(), type, className);
+            writeSourceFile(fqClassName, source, type);
         }
-
-        String fqClassName = generatedSubclassName(type, 0);
-        String className = TypeElementUtils.simpleNameOf(fqClassName);
-        if (className == null) {
-            mErrorReporter.abortWithError("Class name is null", type);
-        }
-
-        HolderBuilder holderBuilderAnnotation = type.getAnnotation(ANNOTATION);
-        if (!checkTypeElement(type, holderBuilderAnnotation)) {
-            return;
-        }
-
-        String source = generateCode(holderBuilderAnnotation.value(), type, className);
-        source = Reformatter.fixup(source);
-
-        writeSourceFile(fqClassName, source, type);
     }
 
-    private boolean checkTypeElement(TypeElement type, HolderBuilder holderBuilderAnnotation) {
+    private void checkTypeElement(TypeElement type, HolderBuilder holderBuilderAnnotation) {
         if (holderBuilderAnnotation == null) {
-            mErrorReporter.abortWithError("annotation processor for @HolderBuilder was invoked with a"
-                    + "type annotated differently; compiler bug? O_o", type);
-            return false;
+            throw mErrorReporter.abortWithError(type, ErrorType.COMPILER_BUG,
+                    HolderBuilder.class.getName());
         }
+
         if (type.getKind() != ElementKind.CLASS) {
-            mErrorReporter.abortWithError("@" + HolderBuilder.class.getName() + " only applies to classes", type);
-            return false;
+            throw mErrorReporter.abortWithError(type, ErrorType.ANNOTATION_ONLY_FOR_CLASSES,
+                    HolderBuilder.class.getName());
         }
+
         if (TypeElementUtils.isAbstract(type)) {
-            mErrorReporter.abortWithError("Class " + type + " must not be abstract", type);
-            return false;
+            throw mErrorReporter.abortWithError(type, ErrorType.CLASS_MUST_NOT_BE_ABSTRACT, type);
         }
-        TypeName superClassName = ClassName.get(MoreTypes.asTypeElement(type.getSuperclass()));
-        if (!TYPE_DEFAULT_VIEW_HOLDER.equals(superClassName)) {
-            mErrorReporter.abortWithError("Superclass of " + type + " must be " + TYPE_DEFAULT_VIEW_HOLDER
-                    + ", but it is " + superClassName, type);
-            return false;
+
+        if (!isTypeAssignableFrom(TYPE_DEFAULT_VIEW_HOLDER, type)) {
+            throw mErrorReporter.abortWithError(type, ErrorType.UNEXPECTED_SUPERCLASS_OF_TYPE, type,
+                    TYPE_DEFAULT_VIEW_HOLDER, type.getSuperclass());
         }
+
         List<? extends TypeParameterElement> typeParameters = type.getTypeParameters();
-        if (typeParameters != null && typeParameters.size() > 0) {
-            mErrorReporter.abortWithError("Class " + type + " must not have parameters=<" + typeParameters + ">",
-                    typeParameters.get(0));
-            return false;
+        if (typeParameters != null && !typeParameters.isEmpty()) {
+            throw mErrorReporter.abortWithError(typeParameters.get(0), ErrorType.ILLEGAL_TYPE_PARAMETER,
+                    type, typeParameters);
         }
-        return true;
     }
 
-    private boolean checkConstructorParameters(TypeElement type,
-                                               List<? extends VariableElement> parameters,
-                                               ExecutableElement constructor) {
-        if (parameters.size() == 0) {
-            mErrorReporter.abortWithError("Constructor of class " + type + " must have least one parameter",
-                    constructor);
-            return false;
+    private boolean isTypeAssignableFrom(TypeName parentTypeName, TypeElement type) {
+
+        TypeElement typeElement = MoreTypes.asTypeElement(type.getSuperclass());
+        TypeName superClassName = ClassName.get(typeElement);
+
+        return parentTypeName.equals(superClassName)
+                || (!TYPE_OBJECT.equals(superClassName) && isTypeAssignableFrom(parentTypeName, typeElement));
+
+    }
+
+
+    private void checkConstructorParameters(TypeElement type,
+                                            List<? extends VariableElement> parameters, ExecutableElement constructor) {
+        if (parameters.isEmpty()) {
+            throw mErrorReporter.abortWithError(constructor,
+                    ErrorType.CONSTRUCTOR_MUST_HAVE_LEAST_ONE_PARAMETER, type);
         }
         VariableElement firstParameter = parameters.get(0);
 
-
         if (!TYPE_VIEW.equals(ClassName.get(firstParameter.asType()))) {
-            mErrorReporter.abortWithError("First parameter is constructor of class " + type
-                    + " must be " + TYPE_VIEW + " but it is " + firstParameter.asType(), firstParameter);
-            return false;
+            throw mErrorReporter.abortWithError(firstParameter,
+                    ErrorType.UNEXPECTED_FIRST_PARAMETER_OF_CONSTRUCTOR, type, TYPE_VIEW,
+                    firstParameter.asType());
         }
-        return true;
+    }
+
+    private TypeMirror getActualModelType(TypeElement holderType) {
+
+        List<ExecutableElement> methods = ElementFilter.methodsIn(holderType.getEnclosedElements());
+        for (ExecutableElement method : methods) {
+            if (method.getSimpleName().toString().equals(METHOD_BIND)) {
+                List<? extends VariableElement> parameters = method.getParameters();
+                VariableElement argument = parameters.get(0);
+                return argument.asType();
+            }
+        }
+
+        throw mErrorReporter.abortWithError(holderType, ErrorType.METHOD_NOT_FOUND, holderType,
+                METHOD_BIND);
     }
 
     private String generateCode(@LayoutRes int layout, TypeElement type, String className) {
 
         List<? extends VariableElement> parameters = findConstructorParameters(type);
-        if (parameters == null) {
-            return null;
-        }
-
         TypeMirror superclassTypeMirror = type.getSuperclass();
-        TypeMirror modelTypeMirror = MoreTypes.asDeclared(superclassTypeMirror).getTypeArguments().get(0);
+        TypeMirror modelTypeMirror = getActualModelType(type);
         List<? extends VariableElement> elements = parameters.subList(1, parameters.size());
         ImmutableList<FieldSpec> fields = SpecUtils.buildFields(elements);
         ImmutableList<ParameterSpec> constructorParameters = SpecUtils.buildParameters(elements);
-        TypeName parameterizedBuilder = ParameterizedTypeName.get(TYPE_BUILDER, ClassName.get(modelTypeMirror));
+        TypeName parameterizedBuilder =
+                ParameterizedTypeName.get(TYPE_BUILDER, ClassName.get(modelTypeMirror));
         String pkg = TypeElementUtils.packageNameOf(type);
 
         TypeSpec.Builder subClass = TypeSpec.classBuilder(className)
@@ -214,36 +237,53 @@ public final class HolderBuilderProcessor extends AbstractProcessor {
         return javaFile.toString();
     }
 
+    @NonNull
     private List<? extends VariableElement> findConstructorParameters(TypeElement type) {
+
+        ExecutableElement constructor = findConstructor(type);
+
+        List<? extends VariableElement> parameters = constructor.getParameters();
+
+        checkConstructorParameters(type, parameters, constructor);
+        return parameters;
+    }
+
+    @NonNull
+    private ExecutableElement findConstructor(TypeElement type) {
+
         List<ExecutableElement> constructors = TypeElementUtils.getConstructors(type);
-        ExecutableElement constructor = null;
+        ExecutableElement constructor;
+
         if (constructors.size() == 1) {
             constructor = constructors.get(0);
         } else {
             List<ExecutableElement> annotatedConstructors =
                     TypeElementUtils.getConstructorsWithAnnotation(constructors, ANNOTATION_CONSTRUCTOR);
-            if (annotatedConstructors.size() == 0) {
-                mErrorReporter.abortWithError("Found more than one constructors, but no one have annotation "
-                        + ANNOTATION_CONSTRUCTOR, constructors.get(0));
+            if (annotatedConstructors.isEmpty()) {
+                throw mErrorReporter.abortWithError(constructors.get(0),
+                        ErrorType.NO_ANNOTATION_IN_CONSTRUCTORS, ANNOTATION_CONSTRUCTOR.toString());
             } else if (annotatedConstructors.size() > 1) {
-                mErrorReporter.abortWithError("More than one constructors have annotation "
-                        + ANNOTATION_CONSTRUCTOR, annotatedConstructors.get(0));
+                throw mErrorReporter.abortWithError(annotatedConstructors.get(0),
+                        ErrorType.MORE_THAN_ONE_CONSTRUCTORS_HAVE_ANNOTATION,
+                        ANNOTATION_CONSTRUCTOR.toString());
             } else {
                 constructor = annotatedConstructors.get(0);
             }
         }
+
         if (constructor == null) {
-            return null;
+            throw new AssertionError();
         }
-        List<? extends VariableElement> parameters = constructor.getParameters();
-        return checkConstructorParameters(type, parameters, constructor) ? parameters : null;
+
+        return constructor;
     }
 
     /* Methods generators */
+
     private MethodSpec generateVersionMethod() {
 
-        MethodSpec.Builder build = MethodSpec.methodBuilder(METHOD_GET_ID)
-                .addAnnotation(Override.class);
+        MethodSpec.Builder build =
+                MethodSpec.methodBuilder(METHOD_GET_ID).addAnnotation(Override.class);
 
         return build.addModifiers(Modifier.PUBLIC)
                 .returns(TypeName.INT)
@@ -262,25 +302,20 @@ public final class HolderBuilderProcessor extends AbstractProcessor {
             stringBuilder.append(fieldSpec.name);
         }
 
-//        View view = LayoutInflater.from(parent.getContext())
-//                .inflate(R.layout.list_item_crime, parent, false);
-//        View parent
         stringBuilder.append(")");
         return build.addModifiers(Modifier.PUBLIC)
                 .addAnnotation(Override.class)
                 .addParameter(TYPE_VIEW_GROUP, VARIABLE_PARENT)
                 .returns(ClassName.get(typeMirror))
-                .addStatement("$T view = $T.from($L.getContext())"
-                                + ".inflate($L, $L, false)", TYPE_VIEW, TYPE_LAYOUT_INFLATER,
-                        VARIABLE_PARENT, layout, VARIABLE_PARENT)
+                .addStatement("$T view = $T.from($L.getContext())" + ".inflate($L, $L, false)", TYPE_VIEW,
+                        TYPE_LAYOUT_INFLATER, VARIABLE_PARENT, layout, VARIABLE_PARENT)
                 .addStatement(stringBuilder.toString())
                 .build();
     }
 
     private MethodSpec generateConstructor(ImmutableList<ParameterSpec> properties) {
-        MethodSpec.Builder builder = MethodSpec.constructorBuilder()
-                .addModifiers(Modifier.PUBLIC)
-                .addParameters(properties);
+        MethodSpec.Builder builder =
+                MethodSpec.constructorBuilder().addModifiers(Modifier.PUBLIC).addParameters(properties);
         for (ParameterSpec param : properties) {
             builder.addStatement("this._$N = $N", param.name, param.name);
         }
@@ -289,8 +324,8 @@ public final class HolderBuilderProcessor extends AbstractProcessor {
 
     private MethodSpec generateClassMethod(TypeMirror typeMirror) {
         TypeName parameterizedClass = ParameterizedTypeName.get(TYPE_CLASS, ClassName.get(typeMirror));
-        MethodSpec.Builder build = MethodSpec.methodBuilder(METHOD_GET_HOLDER_CLASS)
-                .addAnnotation(Override.class);
+        MethodSpec.Builder build =
+                MethodSpec.methodBuilder(METHOD_GET_HOLDER_CLASS).addAnnotation(Override.class);
         return build.addModifiers(Modifier.PUBLIC)
                 .returns(parameterizedClass)
                 .addStatement("return $L", CONSTANT_MODEL_CLASS)
@@ -299,52 +334,51 @@ public final class HolderBuilderProcessor extends AbstractProcessor {
 
     private FieldSpec generateVersionConstant() {
         mVersion++;
-        return FieldSpec.builder(TypeName.INT, CONSTANT_HOLDER_ID, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                .initializer("$L", mVersion)
-                .build();
+        return FieldSpec.builder(TypeName.INT, CONSTANT_HOLDER_ID, Modifier.PUBLIC, Modifier.STATIC,
+                Modifier.FINAL).initializer("$L", mVersion).build();
     }
 
     private FieldSpec generateClassConstant(TypeMirror typeMirror) {
         TypeName parameterizedClass = ParameterizedTypeName.get(TYPE_CLASS, ClassName.get(typeMirror));
-        return FieldSpec.builder(parameterizedClass, CONSTANT_MODEL_CLASS,
-                Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                .initializer("$T$L", typeMirror, ".class")
-                .build();
+        return FieldSpec.builder(parameterizedClass, CONSTANT_MODEL_CLASS, Modifier.PUBLIC,
+                Modifier.STATIC, Modifier.FINAL).initializer("$T$L", typeMirror, ".class").build();
     }
 
     /* End of methods generators */
 
-
+    @NonNull
     private String generatedSubclassName(TypeElement type, int depth) {
         return generatedClassName(type, Strings.repeat("$", depth) + POSTFIX_BUILDER);
     }
 
-    private String generatedClassName(TypeElement type, String postfix) {
-        String name = type.getSimpleName().toString();
-        while (type.getEnclosingElement() instanceof TypeElement) {
-            type = (TypeElement) type.getEnclosingElement();
-            name = type.getSimpleName() + "." + name;
+    @NonNull
+    private String generatedClassName(final TypeElement type, final String postfix) {
+        TypeElement elementType = type;
+
+        StringBuilder name = new StringBuilder(elementType.getSimpleName().toString());
+
+        while (elementType.getEnclosingElement() instanceof TypeElement) {
+            elementType = (TypeElement) elementType.getEnclosingElement();
+            name.append(elementType.getSimpleName());
+            name.append(".");
+            name.append(name);
         }
-        String pkg = TypeElementUtils.packageNameOf(type);
-        String dot = pkg.isEmpty() ? "" : ".";
-        return pkg + dot + name + postfix;
+        String pkg = TypeElementUtils.packageNameOf(elementType);
+        return pkg + "." + name + postfix;
     }
 
-    private void writeSourceFile(
-            String className,
-            String text,
-            TypeElement originatingType) {
+    private void writeSourceFile(String className, String text, TypeElement originatingType) {
         try {
-            JavaFileObject sourceFile =
-                    processingEnv.getFiler().
-                            createSourceFile(className, originatingType);
+            Filer filer = processingEnv.getFiler();
+            JavaFileObject sourceFile = filer.createSourceFile(className, originatingType);
             Writer writer = sourceFile.openWriter();
             try {
                 writer.write(text);
             } finally {
-                //noinspection ThrowFromFinallyBlock
                 writer.close();
             }
-        } catch (IOException e) { /* silent */ }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

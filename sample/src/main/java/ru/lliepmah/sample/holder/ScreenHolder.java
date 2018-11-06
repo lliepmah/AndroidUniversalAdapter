@@ -1,10 +1,11 @@
 package ru.lliepmah.sample.holder;
 
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.TextView;
 
-import com.lliepmah.HolderBuilder;
-import com.lliepmah.HolderConstructor;
+import ru.lliepmah.HolderBuilder;
+import ru.lliepmah.HolderConstructor;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -40,7 +41,7 @@ public class ScreenHolder extends DefaultViewHolder<Screen> {
     }
 
     @Override
-    public void bind(Screen screen) {
+    public void bind(@NonNull Screen screen) {
         mScreen = screen;
         mTvText.setText(screen.getTitle());
     }

@@ -1,4 +1,4 @@
-package com.lliepmah;
+package ru.lliepmah;
 
 import android.support.annotation.LayoutRes;
 

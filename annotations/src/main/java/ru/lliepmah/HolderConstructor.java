@@ -1,4 +1,4 @@
-package com.lliepmah;
+package ru.lliepmah;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

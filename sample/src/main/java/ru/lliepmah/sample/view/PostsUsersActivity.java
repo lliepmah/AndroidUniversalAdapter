@@ -10,6 +10,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import ru.lliepmah.lib.UniversalAdapter;
 import ru.lliepmah.sample.R;
+import ru.lliepmah.sample.data.DataSource;
 import ru.lliepmah.sample.holder.LabelHolderBuilder;
 import ru.lliepmah.sample.holder.PostHolderBuilder;
 import ru.lliepmah.sample.holder.UserHolder;
@@ -18,10 +19,6 @@ import ru.lliepmah.sample.holder.listeners.OnDetailListener;
 import ru.lliepmah.sample.holder.listeners.OnLikeListener;
 import ru.lliepmah.sample.model.Person;
 import ru.lliepmah.sample.model.Post;
-
-import static ru.lliepmah.sample.data.DataSource.getBestPosts;
-import static ru.lliepmah.sample.data.DataSource.getPosts;
-import static ru.lliepmah.sample.data.DataSource.getUsers;
 
 /**
  * Created by Arthur Korchagin on 27.10.16
@@ -45,11 +42,11 @@ public class PostsUsersActivity extends AppCompatActivity implements OnDetailLis
                 new LabelHolderBuilder(""));
 
         mAdapter.add(getString(R.string.users));
-        mAdapter.addAll(getUsers());
+        mAdapter.addAll(DataSource.getUsers());
         mAdapter.add(getString(R.string.posts_category));
-        mAdapter.addAll(getPosts());
+        mAdapter.addAll(DataSource.getPosts());
         mAdapter.add(getString(R.string.best));
-        mAdapter.addAll(getBestPosts());
+        mAdapter.addAll(DataSource.getBestPosts());
 
         mRecyclerView.setAdapter(mAdapter);
     }
